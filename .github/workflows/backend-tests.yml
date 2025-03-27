@@ -9,6 +9,28 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:15
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_DB: test_db
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_pass
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      PGDB_HOST: localhost
+      PGDB_PORT: 5432
+      PGDB_USER: test_user
+      PGDB_PASS: test_pass
+      PGDB_NAME: test_db
+
     defaults:
       run:
         working-directory: backend
@@ -25,5 +47,9 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run tests
-        run: npm run test -- --coverage
+      - name: Run unit tests
+        run: npm run test
+
+      - name: Run e2e tests
+        run: npm run test:e2e
+
