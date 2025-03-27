@@ -1,13 +1,14 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.PGDB_HOST,
@@ -15,8 +16,10 @@ import { AppService } from './app.service';
       username: process.env.PGDB_USER,
       password: process.env.PGDB_PASS,
       database: process.env.PGDB_NAME,
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true
-    })
+    }),
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],
