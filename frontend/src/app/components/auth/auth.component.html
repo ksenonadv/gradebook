@@ -1,0 +1,45 @@
+<div class="container mx-auto mt-10 p-4 border-2 border-gray-200 rounded-md shadow-lg max-w-sm">
+
+  <div class = "flex w-fit mx-auto mb-4">
+    <p-selectButton [options]="[{label: 'Login', value: 'login'}, {label: 'Register', value: 'register'}]"
+    [(ngModel)]="authAction" (onChange)="switchAction(authAction)" [allowEmpty]="false" [styleClass]="'selector'"></p-selectButton>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+    
+    @if (authAction === 'register') {
+      <div class="relative">
+        <input type="text" formControlName="firstname" placeholder="First Name" class="input">
+        <div *ngIf="form.get('firstname')?.errors?.['required'] && (form.get('firstname')?.dirty || form.get('firstname')?.touched)" class="error">
+          First Name is required.
+        </div>
+      </div>
+      <div class="relative">
+        <input type="text" formControlName="lastname" placeholder="Last Name" class="input">
+        <div *ngIf="form.get('lastname')?.errors?.['required'] && (form.get('lastname')?.dirty || form.get('lastname')?.touched)" class="error">
+          Last Name is required.
+        </div>
+      </div>
+    }
+
+    <div class="relative">
+      <input type="email" formControlName="email" placeholder="Email" class="input">
+      <div *ngIf="form.get('email')?.errors?.['required'] && (form.get('email')?.dirty || form.get('email')?.touched)" class="error">
+        Email is required.
+      </div>
+      <div *ngIf="form.get('email')?.errors?.['email'] && (form.get('email')?.dirty || form.get('email')?.touched)" class="error">
+        Invalid email format.
+      </div>
+    </div>
+    <div class="relative">
+      <input type="password" formControlName="password" placeholder="Password" class="input">
+      <div *ngIf="form.get('password')?.errors?.['required'] && (form.get('password')?.dirty || form.get('password')?.touched)" class="error">
+        Password is required.
+      </div>
+    </div>
+
+    <button class="btn" type="submit" [disabled]="form.invalid">
+      {{ authAction === 'login' ? 'Login' : 'Register' }}
+    </button>
+  </form>
+</div>

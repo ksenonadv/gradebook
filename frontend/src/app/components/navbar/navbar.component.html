@@ -1,0 +1,21 @@
+<div class = "w-full mb-2">
+  <p-menubar [model]="items" styleClass="navbar">
+    <ng-template #start>
+      <div class = "font-sans text-white font-bold">
+        Grade Book
+      </div>
+    </ng-template>
+    <ng-template #end>
+      @if (!user) {
+        <button class="bg-violet-600 text-white px-2 py-1 rounded hover:bg-violet-500" [routerLink]="['/auth']">
+          Login
+        </button>
+      } @else {
+        <div class="flex items-center gap-2">
+          <img src="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png" class = "h-8" />
+          <span class="text-white font-semibold">{{ user.firstName }}</span>
+        </div>
+      }
+    </ng-template>
+  </p-menubar>
+</div>
