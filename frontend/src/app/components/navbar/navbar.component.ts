@@ -6,12 +6,13 @@ import { User } from '../../interfaces/user.interface';
 import { AuthService } from '../../services/auth.service';
 import { takeUntil } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss',
-  imports: [Menubar, RouterModule],
+  imports: [Menubar, RouterModule, CommonModule],
 })
 export class NavbarComponent {
   
@@ -33,10 +34,21 @@ export class NavbarComponent {
   public user: User | undefined = undefined;
 
   private destroyRef = inject(DestroyRef);
+
+  public dropdownOpen: boolean = false;
   
   constructor() {
     this.authService.userData$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((user: User | undefined) => {
       this.user = user;
     });
+  }
+
+  public toggleDropdown() {
+    this.dropdownOpen = !this.dropdownOpen;
+  }
+
+  public logout() {
+    this.authService.logout();
+    this.dropdownOpen = false;  
   }
 }

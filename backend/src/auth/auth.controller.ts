@@ -1,6 +1,7 @@
 import { Controller, Post, Body, UseGuards, Get, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { IsEmail, IsNotEmpty } from 'class-validator';
+import { AuthGuard } from '@nestjs/passport';
 
 class RegisterDto {
   
@@ -49,5 +50,16 @@ export class AuthController {
       body.email, 
       body.password
     );
+  }
+
+  @Get('me')
+  @UseGuards(AuthGuard('jwt'))
+  getMe(@Req() req: any) {
+    return {
+      firstName: req.user.firstName,
+      lastName: req.user.lastName,
+      email: req.user.email,
+      role: req.user.role,
+    }
   }
 }

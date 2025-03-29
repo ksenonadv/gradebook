@@ -32,7 +32,7 @@ export class AuthService {
           undefined
         );
       } else {
-        this.httpClient.get<User>(`${this.apiUrl}/auth/me`).subscribe((user: User) => {
+        this.httpClient.get<User>(`${this.apiUrl}/me`).subscribe((user: User) => {
           this.userData.next(
             user
           );
@@ -72,12 +72,12 @@ export class AuthService {
       ).subscribe({
         next: (res: { token: string }) => {
   
-          this.token.next(
-            undefined
-          );
-  
           localStorage.setItem(
             'token',
+            res.token
+          );
+
+          this.token.next(
             res.token
           );
 
@@ -104,5 +104,9 @@ export class AuthService {
 
   public get userData$() {
     return this.userData.asObservable();
+  }
+
+  public get isLoggedIn() {
+    return this.token.value !== undefined;
   }
 }

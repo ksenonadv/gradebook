@@ -11,9 +11,23 @@
           Login
         </button>
       } @else {
-        <div class="flex items-center gap-2">
-          <img src="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png" class = "h-8" />
-          <span class="text-white font-semibold">{{ user.firstName }}</span>
+        <div class="flex flex-row items-center justify-end gap-2">
+          <div class="relative">
+            <button (click)="toggleDropdown()" class="flex items-center space-x-2 focus:outline-none">
+              <img src="https://i.pravatar.cc/40" alt="Avatar" class="w-9 h-9 rounded-full border" />
+              <span class="text-white font-semibold">{{ user.firstName }}</span>
+              <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2"
+                   viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+            @if (dropdownOpen) {
+              <div class="absolute right-0 mt-2 w-48 bg-black/50 rounded-lg shadow-lg ring-1 ring-gray-800 z-50">
+                <a routerLink="/profile" class="block px-4 py-2 text-sm text-gray-100 hover:bg-white/10 rounded-t-lg">Profile</a>
+                <button (click)="logout()" class="w-full text-left px-4 py-2 text-sm text-gray-100 hover:bg-white/10 rounded-b-lg">Logout</button>
+              </div>
+            }
+          </div>
         </div>
       }
     </ng-template>

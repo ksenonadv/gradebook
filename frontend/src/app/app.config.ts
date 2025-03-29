@@ -6,18 +6,23 @@ import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeng/themes/aura';
 
 import { routes } from './app.routes';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { jwtInterceptor } from './interceptors/jwt.interceptor';
+import { MessageService } from 'primeng/api';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideAnimationsAsync(),
     providePrimeNG({
-        theme: {
-          preset: Aura
-        }
+      theme: {
+        preset: Aura
+      }
     }),
     provideZoneChangeDetection({ eventCoalescing: true }), 
     provideRouter(routes),
-    provideHttpClient(),
+    provideHttpClient(
+      withInterceptors([jwtInterceptor])
+    ),
+    MessageService,
   ]
 };

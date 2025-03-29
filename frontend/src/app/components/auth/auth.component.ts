@@ -5,6 +5,8 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
+import { NotificationsService } from '../../services/notifications.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-auth',
@@ -17,11 +19,12 @@ import { AuthService } from '../../services/auth.service';
     ButtonModule,
     InputTextModule,
     CommonModule
-  ]
+  ],
 })
 export class AuthComponent {
 
-  private readonly formBuilder: FormBuilder = inject(FormBuilder);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly router = inject(Router);
   
   public form: FormGroup = this.formBuilder.group({
     email: ['', [Validators.required, Validators.email]],
@@ -33,6 +36,15 @@ export class AuthComponent {
   public authAction = 'login';
 
   private readonly authService = inject(AuthService);
+  private readonly notificationsService = inject(NotificationsService);
+
+  constructor() {
+    if (this.authService.isLoggedIn) {
+      this.router.navigate([
+        '/dashboard'
+      ]);
+    }
+  }
 
   public switchAction(action: string): void {   
     
@@ -53,7 +65,6 @@ export class AuthComponent {
     if (!this.form.valid)
       return;
 
-    
     if (this.authAction === 'login')
       return this.login();
     
@@ -64,12 +75,17 @@ export class AuthComponent {
     this.authService.login(
       this.form.value.email,
       this.form.value.password
-    ).catch(error => {
-      if (error.error) {
-        alert(error.error.message);
-      } else {
-        alert('An error occurred while logging in. Please try again later.');
-      }
+    ).then(() => {
+      this.notificationsService.success(
+        'Login Successful',
+        'You have successfully logged in.'
+      );
+      this.router.navigate(['/dashboard']);
+    }).catch(error => {
+      this.notificationsService.error(
+        'Authentication Error',
+        error.error ? error.error.message : 'An error occurred while logging in.'
+      );
     });
   }
 
@@ -81,17 +97,23 @@ export class AuthComponent {
       this.form.value.password
     ).subscribe({
       next: () => {
+        
         this.switchAction(
           'login'
         );
+
         this.form.reset();
+
+        this.notificationsService.success(
+          'Registration Successful',
+          'You have successfully registered. Please log in.'
+        );
       },
       error: (data) => {
-        if (data.error) {
-          alert(data.error.message);
-        } else {
-          alert('An error occurred while registering. Please try again later.');
-        }
+        this.notificationsService.error(
+          'Registration Error',
+          data.error && data.error.message ? data.error.message : 'An error occurred while registering.'
+        );
       }
     });
   }
