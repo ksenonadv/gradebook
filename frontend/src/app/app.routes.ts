@@ -16,5 +16,16 @@ export const routes: Routes = [
   {
     path: '**',
     redirectTo: 'dashboard'
+  },
+  {
+    path: 'email-confirmation/confirm-email',
+    component: AuthComponent,
+    canActivate: [],
+  },
+  {
+    path: 'auth/reset-password',
+    component: AuthComponent,
+    canActivate: []
   }
 ];
+

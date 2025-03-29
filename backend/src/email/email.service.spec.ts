@@ -76,10 +76,6 @@ describe('EmailService', () => {
     
         expect(jwtService.sign).toHaveBeenCalledWith(
           { email: 'test@example.com' },
-          {
-            secret: 'mockSecret',
-            expiresIn: '3600s',
-          }
         );
     });
 

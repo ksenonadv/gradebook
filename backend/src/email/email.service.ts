@@ -1,10 +1,10 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { createTransport } from 'nodemailer';
-import * as Mail from 'nodemailer/lib/mailer';
-import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { createTransport } from 'nodemailer';
+import * as Mail from 'nodemailer/lib/mailer';
 import { User } from '../entities/user.entity';
 
 @Injectable()
@@ -34,10 +34,9 @@ export class EmailService {
     public async sendResetPasswordLink(email: string): Promise<void> {
         const payload = { email };
 
-        const token = this.jwtService.sign(payload, {
-            secret: this.configService.get('JWT_VERIFICATION_TOKEN_SECRET'),
-            expiresIn: `${this.configService.get('JWT_VERIFICATION_TOKEN_EXPIRATION_TIME')}s`
-        });
+        const token = this.jwtService.sign(
+            payload
+        );
 
         const user = await this.userRepo.findOne({ 
             where: { 
@@ -58,9 +57,9 @@ export class EmailService {
 
     public async decodeConfirmationToken(token: string) {
         try {
-            const payload = await this.jwtService.verify(token, {
-                secret: this.configService.get('JWT_VERIFICATION_TOKEN_SECRET')
-            });
+            const payload = await this.jwtService.verify(
+                token
+            );
     
             if (typeof payload === 'object' && 'email' in payload) {
                 return payload.email;
