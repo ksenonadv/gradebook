@@ -56,10 +56,10 @@ describe('AuthComponent', () => {
     });
     component.switchAction('register');
     expect(component.form.value).toEqual({
-      email: '',
-      password: '',
-      firstname: '',
-      lastname: ''
+      email: null,
+      password: null,
+      firstname: null,
+      lastname: null
     });
   });
 
