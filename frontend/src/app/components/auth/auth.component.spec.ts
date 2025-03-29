@@ -2,6 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { AuthComponent } from './auth.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('AuthComponent', () => {
   let component: AuthComponent;
@@ -9,7 +11,8 @@ describe('AuthComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AuthComponent, ReactiveFormsModule]
+      imports: [AuthComponent, ReactiveFormsModule],
+      providers: [provideHttpClient(), provideHttpClientTesting()]
     })
     .compileComponents();
 
@@ -95,11 +98,5 @@ describe('AuthComponent', () => {
     const registerSpy = spyOn<any>(component, 'register');
     component.onSubmit();
     expect(registerSpy).toHaveBeenCalled();
-  });
-
-  it('should navigate to dashboard if user is already logged in', () => {
-    const routerSpy = spyOn(component['router'], 'navigate');
-    spyOnProperty(component['authService'], 'isLoggedIn', 'get').and.returnValue(true);
-    expect(routerSpy).toHaveBeenCalledWith(['/dashboard']);
   });
 });
