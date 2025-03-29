@@ -4,6 +4,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { User, UserRole } from '../entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
+import { EmailService } from '../email/email.service';
 
 describe('AuthService - register', () => {
   
@@ -28,6 +29,13 @@ describe('AuthService - register', () => {
           provide: JwtService,
           useValue: {
             sign: jest.fn().mockReturnValue('mockToken'),
+          },
+        },
+        {
+          provide: EmailService,
+          useValue: {
+            sendResetPasswordLink: jest.fn(),
+            decodeConfirmationToken: jest.fn(),
           },
         },
       ],

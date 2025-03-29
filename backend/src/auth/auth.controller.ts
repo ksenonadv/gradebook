@@ -2,6 +2,7 @@ import { Controller, Post, Body, UseGuards, Get, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { IsEmail, IsNotEmpty } from 'class-validator';
 import { AuthGuard } from '@nestjs/passport';
+import { Throttle } from '@nestjs/throttler';
 
 class RegisterDto {
   
@@ -22,6 +23,19 @@ class LoginDto {
   
   @IsEmail()
   email: string;
+
+  @IsNotEmpty()
+  password: string;
+}
+
+class ForgotPasswordDto {
+  @IsEmail()
+  email: string;
+}
+
+class ResetPasswordDto {
+  @IsNotEmpty()
+  token: string;
 
   @IsNotEmpty()
   password: string;
@@ -61,5 +75,21 @@ export class AuthController {
       email: req.user.email,
       role: req.user.role,
     }
+  }
+
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
+  @Post('forgot-password')
+  forgotPassword(@Body() body: ForgotPasswordDto){
+    return this.authService.forgotPassword(
+      body.email
+    );
+  }
+
+  @Post('reset-password')
+  resetPassword(@Body() body: ResetPasswordDto){
+      return this.authService.resetPassword(
+        body.token, 
+        body.password
+      );
   }
 }
