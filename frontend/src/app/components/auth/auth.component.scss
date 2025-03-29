@@ -1,0 +1,15 @@
+.input {
+  @apply bg-[#09090b] text-gray-200 p-2 rounded-md outline-1 outline-white/60 w-full;
+}
+
+::ng-deep .selector {
+  --p-togglebutton-content-checked-background: rgb(124 58 237) !important;
+}
+
+.btn {
+  @apply px-1 py-2 rounded-md text-white bg-violet-600 hover:bg-violet-500 disabled:bg-violet-800 disabled:cursor-not-allowed;
+}
+
+.error {
+  @apply text-red-500 text-sm font-semibold;
+}
