@@ -60,4 +60,46 @@ describe('AuthComponent', () => {
       lastname: ''
     });
   });
+
+  it('should not submit the form if it is invalid', () => {
+    component.form.patchValue({
+      email: '',
+      password: ''
+    });
+    const loginSpy = spyOn<any>(component, 'login');
+    const registerSpy = spyOn<any>(component, 'register');
+    component.onSubmit();
+    expect(loginSpy).not.toHaveBeenCalled();
+    expect(registerSpy).not.toHaveBeenCalled();
+  });
+
+  it('should call login method when authAction is login and form is valid', () => {
+    component.authAction = 'login';
+    component.form.patchValue({
+      email: 'test@example.com',
+      password: 'password123'
+    });
+    const loginSpy = spyOn<any>(component, 'login');
+    component.onSubmit();
+    expect(loginSpy).toHaveBeenCalled();
+  });
+
+  it('should call register method when authAction is register and form is valid', () => {
+    component.authAction = 'register';
+    component.form.patchValue({
+      email: 'test@example.com',
+      password: 'password123',
+      firstname: 'John',
+      lastname: 'Doe'
+    });
+    const registerSpy = spyOn<any>(component, 'register');
+    component.onSubmit();
+    expect(registerSpy).toHaveBeenCalled();
+  });
+
+  it('should navigate to dashboard if user is already logged in', () => {
+    const routerSpy = spyOn(component['router'], 'navigate');
+    spyOnProperty(component['authService'], 'isLoggedIn', 'get').and.returnValue(true);
+    expect(routerSpy).toHaveBeenCalledWith(['/dashboard']);
+  });
 });
