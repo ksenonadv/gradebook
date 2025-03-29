@@ -106,6 +106,10 @@ export class AuthService {
     return this.userData.asObservable();
   }
 
+  public getUserData() {
+    return this.userData.getValue();
+  }
+
   public get isLoggedIn() {
     return this.token.value !== undefined;
   }
