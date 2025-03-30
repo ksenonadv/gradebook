@@ -6,7 +6,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { NotificationsService } from '../../services/notifications.service';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-auth',
@@ -18,7 +18,8 @@ import { Router } from '@angular/router';
     SelectButtonModule,
     ButtonModule,
     InputTextModule,
-    CommonModule
+    CommonModule,
+    RouterModule
   ],
 })
 export class AuthComponent {

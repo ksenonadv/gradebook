@@ -37,6 +37,14 @@
         Password is required.
       </div>
     </div>
+    
+    @if (authAction === 'login') {
+      <div class="text-left">
+        <a routerLink="/email-confirmation/confirm-email">
+          Forgot password?
+        </a>
+      </div>
+    }
 
     <button class="btn" type="submit" [disabled]="form.invalid">
       {{ authAction === 'login' ? 'Login' : 'Register' }}

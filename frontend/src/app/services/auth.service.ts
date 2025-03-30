@@ -113,4 +113,46 @@ export class AuthService {
   public get isLoggedIn() {
     return this.token.value !== undefined;
   }
+
+  public forgotPassword(email: string){
+    return new Promise<string>((resolve, reject) => {
+      this.httpClient.post<{ message: string }>(
+        `${this.apiUrl}/forgot-password`, 
+        { 
+          email
+        }
+      ).subscribe({
+        next: (response: { message: string }) => {
+          resolve(response.message);
+        },
+        error: (error) => {
+          reject(
+            error.error?.message || 'An error occurred while processing your request.'
+          );
+        }
+      })
+    });
+  }
+
+  public resetPassword(token: string, password: string){
+    return new Promise<string>((resolve, reject) => {
+      this.httpClient.post<{ message: string }>(
+        `${this.apiUrl}/reset-password`, 
+        { 
+          token,
+          password
+        }
+      ).subscribe({
+        next: (response: { message: string }) => {
+          resolve(response.message);
+        },
+        error: (error) => {
+          reject(
+            error.error?.message || 'An error occurred while processing your request.'
+          );
+        }
+      })
+    });
+  }
+
 }

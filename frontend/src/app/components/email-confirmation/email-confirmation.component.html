@@ -1,0 +1,33 @@
+<div class="container mx-auto mt-10 p-6 border-2 border-gray-200 rounded-md shadow-lg max-w-sm">
+
+  <div class="text-center mb-6">
+    <p>Please enter your email address to receive the confirmation link.</p>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+    <div class="relative">
+      <input
+        type="email"
+        formControlName="email"
+        placeholder="Email"
+        class="input"
+      />
+      <div
+        *ngIf="form.get('email')?.errors?.['required'] && (form.get('email')?.dirty || form.get('email')?.touched)"
+        class="error"
+      >
+        Email is required.
+      </div>
+      <div
+        *ngIf="form.get('email')?.errors?.['email'] && (form.get('email')?.dirty || form.get('email')?.touched)"
+        class="error"
+      >
+        Invalid email format.
+      </div>
+    </div>
+
+    <button class="btn" type="submit" [disabled]="form.invalid">
+      Send Confirmation Link
+    </button>
+  </form>
+</div>
