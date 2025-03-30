@@ -65,7 +65,7 @@ export class AuthService {
     };
   }
 
-  async forgotPassword(email: string): Promise<void> {
+  async forgotPassword(email: string) {
     const user = await this.userRepo.findOne({ 
       where: { 
         email 
@@ -77,7 +77,13 @@ export class AuthService {
         `No user found for email: ${email}`
       );
     }
-    await this.emailService.sendResetPasswordLink(email);
+    await this.emailService.sendResetPasswordLink(
+      email
+    );
+    
+    return { 
+      message: 'A confirmation link has been sent to your email.', 
+    };
   }
 
   async resetPassword(token: string, password: string){
