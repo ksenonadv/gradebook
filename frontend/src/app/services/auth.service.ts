@@ -155,4 +155,34 @@ export class AuthService {
     });
   }
 
+  public changeEmail(email: string, newEmail: string){
+    return new Promise<string>((resolve, reject) => {
+      this.httpClient.put<{message: string; token: string}>(
+        `${this.apiUrl}/change-email`, 
+        {
+          email,
+          newEmail
+        }
+      ).subscribe({
+        next: (res: { message: string; token: string }) => {
+  
+          localStorage.setItem(
+            'token',
+            res.token
+          );
+
+          this.token.next(
+            res.token
+          );
+
+          resolve(res.message);
+        },
+        error: (error) => {
+          reject(
+            error.error?.message || 'An error occurred while processing your request.'
+          );
+        }
+      })
+    });
+  }
 }

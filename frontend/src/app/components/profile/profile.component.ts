@@ -48,8 +48,22 @@ export class ProfileComponent {
   }
 
   onSubmit(): void {
-    if (this.form.valid) {
-      console.log('Form submitted:', this.form.value);
-    }
+    if (!this.form.valid || !this.user)
+      return;
+    
+    this.authService.changeEmail(
+      this.user.email,
+      this.form.value.email
+    ).then((message: string) => {
+      this.notificationsService.success(
+        'Success',
+        message
+      );
+    }).catch(error => {
+      this.notificationsService.error(
+        'Error',
+        error
+      );
+    });
   }
 }
