@@ -14,9 +14,9 @@ import { User } from '../entities/user.entity';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         secret: config.get<string>('JWT_VERIFICATION_TOKEN_SECRET'),
-        signOptions: { expiresIn: config.get<string>('JWT_VERIFICATION_TOKEN_EXPIRATION_TIME') },
+        signOptions: { expiresIn: '3m' },
       }),
-    }),
+    })
   ],
   controllers: [EmailController],
   providers: [EmailService],

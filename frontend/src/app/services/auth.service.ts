@@ -134,4 +134,25 @@ export class AuthService {
     });
   }
 
+  public resetPassword(token: string, password: string){
+    return new Promise<string>((resolve, reject) => {
+      this.httpClient.post<{ message: string }>(
+        `${this.apiUrl}/reset-password`, 
+        { 
+          token,
+          password
+        }
+      ).subscribe({
+        next: (response: { message: string }) => {
+          resolve(response.message);
+        },
+        error: (error) => {
+          reject(
+            error.error?.message || 'An error occurred while processing your request.'
+          );
+        }
+      })
+    });
+  }
+
 }
