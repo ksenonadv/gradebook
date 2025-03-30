@@ -1,0 +1,13 @@
+<div class="container mx-auto mt-10 p-4 border-2 border-gray-200 rounded-md shadow-lg max-w-sm">
+    @if (!user) {
+        <p>Could not display the profile.</p>
+    } @else {
+        <div class="flex flex-row items-center justify-center gap-10">
+              <img src="https://i.pravatar.cc/40" alt="Avatar" class="w-24 h-24 rounded-full border" />
+              <div class="flex flex-col items-center">
+                <span class="text-white font-semibold text-2xl">{{ user.firstName }} {{ user.lastName }}</span>
+                <span class="text-purple-500 font-semibold">{{ user.role === 0 ? 'Teacher' : 'Student' }}</span>
+              </div>
+        </div>
+    }
+</div>
