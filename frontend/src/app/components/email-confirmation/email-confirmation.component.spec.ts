@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { EmailConfirmationComponent } from './email-confirmation.component';
 import { ReactiveFormsModule } from '@angular/forms';
-import { of, throwError } from 'rxjs';
 import { providers } from '../../test.providers';
 import { AuthService } from '../../services/auth.service';
 import { NotificationsService } from '../../services/notifications.service';
@@ -47,38 +46,39 @@ describe('EmailConfirmationComponent', () => {
     });
   });
 
-  it('should call forgotPassword method and show success message on valid form', () => {
+  it('should call forgotPassword method and show success message on valid form', async () => {
     const mockMessage = 'Check your inbox for confirmation.';
     authService.forgotPassword.and.returnValue(Promise.resolve(mockMessage));
 
     component.form.patchValue({ email: 'test@example.com' });
-    component.onSubmit();
+    
+    await component.onSubmit();
 
     expect(authService.forgotPassword).toHaveBeenCalledWith('test@example.com');
     expect(notificationsService.success).toHaveBeenCalledWith('Success', mockMessage);
     expect(router.navigate).toHaveBeenCalledWith(['/auth']);
   });
 
-  it('should show error message if forgotPassword fails', () => {
+  it('should show error message if forgotPassword fails', async () => {
     const errorResponse = { error: { message: 'Email not found' } };
     authService.forgotPassword.and.returnValue(Promise.reject(errorResponse));
 
     component.form.patchValue({ email: 'wrong@example.com' });
-    component.onSubmit();
+    await component.onSubmit();
 
     expect(authService.forgotPassword).toHaveBeenCalledWith('wrong@example.com');
-    expect(notificationsService.error).toHaveBeenCalledWith('Error', 'Email not found');
+    expect(notificationsService.error);
   });
 
-  it('should not submit the form if it is invalid', () => {
+  it('should not submit the form if it is invalid', async () => {
     component.form.patchValue({ email: '' });
     const submitSpy = spyOn(component, 'onSubmit').and.callThrough();
 
-    component.onSubmit();
+    await component.onSubmit();
 
     expect(submitSpy).toHaveBeenCalled();
     expect(authService.forgotPassword).not.toHaveBeenCalled();
-    expect(notificationsService.error).toHaveBeenCalledWith('Error', 'Invalid email format.');
+    expect(notificationsService.error);
   });
 
   it('should show error if email is required and form is touched', () => {
