@@ -25,6 +25,6 @@ export class User {
   @Column({ default: UserRole.Student })
   role: UserRole;
 
-  @Column()
+  @Column({ nullable: true })
   image: string;
 }

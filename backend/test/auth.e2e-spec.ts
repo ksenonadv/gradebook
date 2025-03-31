@@ -14,7 +14,7 @@ describe('Auth E2E - Register', () => {
     password: 'pass1234',
     firstName: 'E2E',
     lastName: 'Test',
-    image: 'testImage'
+    image: process.env.DEFAULT_USER_IMAGE,
   };
 
   beforeAll(async () => {
