@@ -185,4 +185,8 @@ export class AuthService {
       })
     });
   }
+
+  public refreshToken(newToken: string) {
+    this.token.next(newToken);
+  }
 }

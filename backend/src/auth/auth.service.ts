@@ -20,6 +20,8 @@ export class AuthService {
 
     const existingUser = await this.userRepo.findOne({ where: { email } });
 
+    const defaultImage = process.env.DEFAULT_USER_IMAGE;
+
     if (existingUser) {
       throw new InternalServerErrorException(
         'Email already in use'
@@ -30,7 +32,8 @@ export class AuthService {
       email, 
       firstName,
       lastName,
-      password: hashedPassword 
+      password: hashedPassword,
+      image: defaultImage
     });
 
     await this.userRepo.save(

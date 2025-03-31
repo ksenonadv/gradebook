@@ -8,6 +8,7 @@ import { ButtonModule } from 'primeng/button';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NotificationsService } from '../../services/notifications.service';
 import { CommonModule } from '@angular/common';
+import { ImagesService } from '../../services/images.service';
 
 @Component({
   selector: 'app-profile',
@@ -30,6 +31,8 @@ export class ProfileComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly notificationsService = inject(NotificationsService);
 
+  private readonly imagesService = inject(ImagesService);
+
   public form: FormGroup = this.formBuilder.group({
     email: ['', [Validators.required, Validators.email]],
   });
@@ -47,10 +50,10 @@ export class ProfileComponent {
     });
   }
 
-  onSubmit(): void {
+  public onSubmit(): void {
     if (!this.form.valid || !this.user)
       return;
-    
+
     this.authService.changeEmail(
       this.user.email,
       this.form.value.email
@@ -66,4 +69,35 @@ export class ProfileComponent {
       );
     });
   }
+
+  public onImageUpload(event: any) {
+    const file = event.files[0];
+    if (!this.user || !file) return;
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+        const imageBase64 = reader.result as string;
+
+        if(!this.user?.email)
+           return;
+   
+        this.imagesService.changeImage(this.user.email, imageBase64)
+            .then((message: string) => {
+                this.notificationsService.success(
+                  'Succes', 
+                  message
+                );
+            })
+            .catch(error => {
+                this.notificationsService.error(
+                  'Error',
+                   error
+                );
+            });
+    };
+    reader.onerror = error => {
+        console.error('Error converting file to Base64:', error);
+    };
+  } 
 }

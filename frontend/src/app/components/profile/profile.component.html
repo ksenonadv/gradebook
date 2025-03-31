@@ -3,14 +3,15 @@
         <p>Could not display the profile.</p>
     } @else {
         <div class="flex flex-col gap-5 items-center justify-center">
-                <img src="https://i.pravatar.cc/40" alt="Avatar" class="w-40 h-40 rounded-full border" />
+                <img [src]="user.image" alt="Avatar" class="w-40 h-40 rounded-full border" />
                 <p-fileupload 
                     mode="basic" 
-                    url="https://www.primefaces.org/cdn/api/upload.php" 
                     accept="image/*" 
                     maxFileSize="1000000" 
                     [auto]="true" 
                     chooseLabel="Change Image"
+                    [customUpload]="true"
+                    (uploadHandler)="onImageUpload($event)"
                     styleClass="custom-file-upload"
                 />
                 <div class="flex flex-col items-center">
