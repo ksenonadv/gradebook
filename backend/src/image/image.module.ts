@@ -4,7 +4,7 @@ import { ImageController } from './image.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { JwtStrategy } from '../jwt/jwt.strategy';
-import { User } from 'src/entities/user.entity';
+import { User } from '../entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
