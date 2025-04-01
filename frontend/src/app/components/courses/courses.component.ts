@@ -11,7 +11,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { CourseCardComponent } from '../course-card/course-card.component';
 import { CommonModule } from '@angular/common';
 import { NotificationsService } from '../../services/notifications.service';
-import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-courses',
@@ -37,7 +36,6 @@ export class CoursesComponent implements OnInit {
   
   constructor(
     private dialog: MatDialog,
-    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -106,7 +104,6 @@ export class CoursesComponent implements OnInit {
           'Success',
           response.message
         );
-        this.cdr.detectChanges();
       }).catch(error => {
         this.notificationsService.error(
           'Error',
