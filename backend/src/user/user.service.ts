@@ -9,16 +9,26 @@ export class UserService {
     constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
 
     async findTeacherByEmail(email: string) {
-      return await this.userRepo.findOne({ where: { email: email, role: UserRole.Teacher } });
+      return await this.userRepo.findOne({
+        where: { email: email, role: UserRole.Teacher },
+        relations: ['courses'],
+      });
     }
   
     async findStudentByEmail(email: string) {
-      return await this.userRepo.findOne({ where: { email: email, role: UserRole.Student } });
+      return await this.userRepo.findOne({
+        where: { email: email, role: UserRole.Student },
+        relations: ['enrolledCourses', 'enrolledCourses.course'],
+      });
     }
-
+    
     async findByEmail(email: string) {
-        return await this.userRepo.findOne({ where: { email } });
+      return await this.userRepo.findOne({
+        where: { email },
+        relations: ['courses', 'enrolledCourses', 'enrolledCourses.course'],
+       });
     }
+    
 
     async createUser(email: string, firstName: string, lastName: string, password: string, role: UserRole, image?: string) {
         const existingUser = await this.findByEmail(email);

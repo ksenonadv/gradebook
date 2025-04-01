@@ -16,7 +16,7 @@
                 />
                 <div class="flex flex-col items-center">
                     <span class="text-white font-semibold text-4xl">{{ user.firstName }} {{ user.lastName }}</span>
-                    <span class="text-violet-600 font-semibold text-2xl">{{ user.role === 0 ? 'Teacher' : 'Student' }}</span>
+                    <span class="text-violet-600 font-semibold text-2xl">{{ user.role === 0 ? 'Student' : 'Teacher' }}</span>
                 </div>
                 <form [formGroup]="form" (ngSubmit)="onSubmit()">
                     <div class="relative w-full">

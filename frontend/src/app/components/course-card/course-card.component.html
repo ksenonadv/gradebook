@@ -1,0 +1,11 @@
+<div class="course-card-content">
+    <h3>{{ course.title }}</h3>
+    <p>{{ course.description }}</p>
+    <p><strong>Teacher:</strong> {{ course.teacher.firstName }} {{ course.teacher.lastName }}</p>
+    
+    <div class="course-card-actions" [ngClass]="{ 'hidden': this.userRole !== 1}">
+      <button mat-button (click)="deleteCourse()">Delete</button>
+      <button mat-button (click)="enrollStudent()">Enroll Student</button>
+    </div>
+  </div>
+  

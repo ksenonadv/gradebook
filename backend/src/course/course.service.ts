@@ -43,7 +43,10 @@ export class CourseService {
   }
 
   async findByTitle(title: string) {
-    return await this.courseRepo.findOne({ where: { title } });
+    return await this.courseRepo.findOne({ 
+      where: { title },
+      relations: ['teacher', 'students', 'students.student'],
+    });
   }
 
   async enrollStudent(courseTitle: string, studentEmail: string, teacherEmail: string) {
@@ -62,19 +65,48 @@ export class CourseService {
   
     const courses = await this.courseRepo.find({
       where: { teacher: { id: teacher.id } },
+      relations: ['teacher', 'students', 'students.student'],
     });
   
-    return courses;
+    return courses.map(course => ({
+      title: course.title,
+      description: course.description,
+      teacher: {
+        firstName: course.teacher.firstName,
+        lastName: course.teacher.lastName,
+        email: course.teacher.email,
+        role: course.teacher.role,
+        image: course.teacher.image ?? process.env.DEFAULT_USER_IMAGE,
+      },
+      students: course.students.map(studentCourse => ({
+        firstName: studentCourse.student.firstName,
+        lastName: studentCourse.student.lastName,
+        email: studentCourse.student.email,
+        role: studentCourse.student.role,
+        image: studentCourse.student.image ?? process.env.DEFAULT_USER_IMAGE,
+      }))
+    }));
   }
   
   async findCoursesByStudent(studentEmail: string) {
-    return await this.studentCourseService.getCoursesForStudent(studentEmail);
+    const courses = await this.studentCourseService.getCoursesForStudent(studentEmail);
+    return courses.map(course => ({
+      title: course.title,
+      description: course.description,
+      teacher: {
+        firstName: course.teacher.firstName,
+        lastName: course.teacher.lastName,
+        email: course.teacher.email,
+        role: course.teacher.role,
+        image: course.teacher.image ?? process.env.DEFAULT_USER_IMAGE,
+      },
+    }));
   }
 
   async getStudentsForCourse(courseTitle: string) {
     const course = await this.courseRepo.findOne({
       where: { title: courseTitle },
-      relations: ['students'],
+      relations: ['students', 'students.student'],
     });
 
     if (!course) {
@@ -83,13 +115,11 @@ export class CourseService {
 
     return course.students.map(studentCourse => {
       const student = studentCourse.student;
-
       return {
         firstName: student.firstName,
         lastName: student.lastName,
         email: student.email,
         role: student.role,
-        enrolledCourses: student.enrolledCourses,
         image: student.image ?? process.env.DEFAULT_USER_IMAGE, 
       };
     });

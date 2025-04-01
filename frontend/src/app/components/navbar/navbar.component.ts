@@ -25,7 +25,6 @@ export class NavbarComponent {
     {
       label: 'Courses',
       routerLink: '/courses',
-      disabled: true,
       routerLinkActiveOptions: { exact: true },
     },
   ];

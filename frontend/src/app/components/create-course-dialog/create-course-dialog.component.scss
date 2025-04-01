@@ -1,0 +1,43 @@
+.dialog-actions {
+    display: flex;
+    justify-content: space-between;  /* butoanele vor fi aliniate pe orizontală */
+    gap: 12px;  /* distanță între butoane */
+    padding: 16px;
+    border-top: 1px solid #e0e0e0;
+  }
+  
+  button {
+    flex: 1;  /* ocupă spațiu egal între butoane */
+    font-size: 16px;
+    padding: 12px 20px;
+    border-radius: 8px;  /* colțuri rotunjite */
+    font-weight: 500;  /* text mai îndrăzneț */
+    transition: all 0.3s ease;
+    
+    &.mat-raised-button {
+      background-color: #2196f3;  /* albastru puternic, dar nu foarte deschis */
+      color: white;
+      border: none;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);  /* umbră subtilă */
+    }
+  
+    &:hover {
+      background-color: #1976d2;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+    }
+  
+    &:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    }
+  
+    &:disabled {
+      background-color: #f0f0f0;
+      color: #bdbdbd; 
+      cursor: not-allowed;  
+      box-shadow: none;  
+      transform: none;
+    }
+  }
+  

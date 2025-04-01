@@ -42,12 +42,23 @@ export class StudentCourseService {
       throw new NotFoundException(`No student found with email: ${studentEmail}`);
     }
 
-    const enrollments = await this.studentCourseRepo.find({
-      where: { student: { id: student.id } },
-      relations: ['enrolledCourses'],
-    });
+    const enrollments = await this.studentCourseRepo
+      .createQueryBuilder('student_course')
+      .leftJoinAndSelect('student_course.course', 'course')
+      .leftJoinAndSelect('course.teacher', 'teacher')
+      .where('student_course.studentId = :studentId', { studentId: student.id })
+      .getMany();
 
-    return enrollments.map((enrollment) => enrollment.course);
+    return enrollments.map(enrollment => ({
+      ...enrollment.course,
+      teacher: {
+        firstName: enrollment.course.teacher.firstName,
+        lastName: enrollment.course.teacher.lastName,
+        email: enrollment.course.teacher.email,
+        role: enrollment.course.teacher.role,
+        image: enrollment.course.teacher.image ?? process.env.DEFAULT_USER_IMAGE,
+      },
+    }));
   }
   
 }
