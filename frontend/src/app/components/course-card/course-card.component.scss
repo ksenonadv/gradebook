@@ -1,27 +1,42 @@
 .course-card-content {
-    border: 1px solid #ccc;
-    padding: 20px;
-    border-radius: 8px;
-    background-color: #fff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-  }
-  
-  .course-card-actions {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 10px;
-  }
-  
-  button {
-    background-color: #ff4d4d;
-    color: white;
-  }
-  
-  button:hover {
-    background-color: #ff3333;
-  }
-  
-  .hidden {
-    display: none;
-  }
+  border: 1px solid #2d2f3b;
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #2e3044;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  margin-top: 30px;
+  color: #e4e4e7;
+  width: 500px;
+}
+
+.course-card-content h3 {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.course-card-content p {
+  margin-bottom: 15px;
+}
+
+.course-card-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+button {
+  background-color: #7c3aed;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 6px;
+  transition: background-color 0.3s ease;
+  margin-right: 10px;
+}
+
+button:hover {
+  background-color: #6d28d9;
+}
+
+.hidden {
+  display: none !important;
+}

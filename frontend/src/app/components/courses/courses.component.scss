@@ -1,18 +1,37 @@
 .courses-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 0 20px; /* Margini în stânga și dreapta */
+  margin-left: 40px;
+  margin-right: 40px;
+}
+
+@media (max-width: 768px) {
+  .courses-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
-  
-  @media (max-width: 768px) {
-    .courses-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
+}
+
+@media (max-width: 480px) {
+  .courses-grid {
+    grid-template-columns: 1fr;
   }
-  
-  @media (max-width: 480px) {
-    .courses-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-  
+}
+
+.course-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.course-header button {
+  background-color: #7c3aed;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 6px;
+}
+
+.course-header button:hover {
+  background-color: #6d28d9;
+}

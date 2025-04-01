@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { NotificationsService } from '../../services/notifications.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-course-card',
@@ -24,8 +25,8 @@ export class CourseCardComponent {
   @Output() courseDeleted = new EventEmitter<string>();
   @Output() studentEnrolled = new EventEmitter<string>();
   private readonly notificationsService = inject(NotificationsService);
-
-  constructor(private courseService: CourseService, private dialog: MatDialog) {}
+  
+  constructor(private courseService: CourseService, private dialog: MatDialog, private router: Router) {}
 
   deleteCourse(): void {
     if (this.userRole === UserRole.Teacher) {
@@ -35,6 +36,7 @@ export class CourseCardComponent {
           'Success',
           response.message
         );
+        this.refreshPage();
       }).catch(error => {
         this.notificationsService.error(
           'Error',
@@ -62,5 +64,11 @@ export class CourseCardComponent {
         });
       }
     }
+  }
+
+  refreshPage() {
+    this.router.navigateByUrl('/').then(() => {
+      this.router.navigate(['/courses']);
+    });
   }
 }

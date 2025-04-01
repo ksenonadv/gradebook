@@ -11,6 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { CourseCardComponent } from '../course-card/course-card.component';
 import { CommonModule } from '@angular/common';
 import { NotificationsService } from '../../services/notifications.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-courses',
@@ -33,9 +34,10 @@ export class CoursesComponent implements OnInit {
 
   private destroyRef: DestroyRef = inject(DestroyRef);
   private readonly notificationsService = inject(NotificationsService);
-  
+
   constructor(
     private dialog: MatDialog,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -83,7 +85,6 @@ export class CoursesComponent implements OnInit {
     const dialogRef = this.dialog.open(CreateCourseDialogComponent, {
       width: '400px'
     });
-
     dialogRef.afterClosed().subscribe((result: { title: string, description: string } | undefined) => {
       if (result) {
         this.createCourse(result.title, result.description);
@@ -104,6 +105,7 @@ export class CoursesComponent implements OnInit {
           'Success',
           response.message
         );
+        location.reload();
       }).catch(error => {
         this.notificationsService.error(
           'Error',
@@ -111,6 +113,12 @@ export class CoursesComponent implements OnInit {
         );
       });
     }
+  }
+
+  refreshPage() {
+    this.router.navigateByUrl('/').then(() => {
+      this.router.navigate(['/courses']);
+    });
   }
   
 }

@@ -16,7 +16,14 @@
   
   <mat-dialog-actions class="dialog-actions">
     <button mat-button (click)="onCancel()">Cancel</button>
-    <button mat-raised-button color="primary" (click)="onCreate()" [disabled]="!isFormValid()">Done</button>
+    <button 
+    mat-raised-button 
+    color="primary" 
+    (click)="onCreate()" 
+    [disabled]="!isFormValid()" 
+    [ngClass]="{'valid': isFormValid(), 'invalid': !isFormValid()}">
+    Done
+  </button>
   </mat-dialog-actions>
   
   
