@@ -8,6 +8,8 @@ import { AuthModule } from './auth/auth.module';
 import { ImageModule } from './image/image.module';
 import { EmailModule } from './email/email.module';
 import { UserModule } from './user/user.module';
+import { CourseModule } from './course/course.module';
+import { StudentCourseModule } from './student-course/student-course.module';
 
 @Module({
   imports: [
@@ -25,7 +27,9 @@ import { UserModule } from './user/user.module';
     AuthModule,
     ImageModule,
     EmailModule,
-    UserModule
+    UserModule,
+    CourseModule,
+    StudentCourseModule,
   ],
   controllers: [AppController],
   providers: [AppService],

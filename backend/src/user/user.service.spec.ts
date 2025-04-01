@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from './user.service';
 import * as bcrypt from 'bcryptjs';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User, UserRole } from '../entities/user.entity';
 
@@ -42,7 +41,9 @@ describe('UserService', () => {
       lastName,
       password: hashedPassword,
       role: UserRole.Student,
-      image: process.env.DEFAULT_USER_IMAGE as string
+      image: process.env.DEFAULT_USER_IMAGE as string,
+      courses: [],
+      enrolledCourses: [],
     };
 
     jest.spyOn(bcrypt, 'hash').mockResolvedValue(hashedPassword as never);
@@ -78,7 +79,9 @@ describe('UserService', () => {
       lastName: 'Doe',
       password: 'oldPassword',
       role: UserRole.Student,
-      image: process.env.DEFAULT_USER_IMAGE as string
+      image: process.env.DEFAULT_USER_IMAGE as string,
+      courses: [],
+      enrolledCourses: [],
     };
 
     jest.spyOn(bcrypt, 'hash').mockResolvedValue(hashedPassword as never);

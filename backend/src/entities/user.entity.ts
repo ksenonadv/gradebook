@@ -1,4 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Course } from './course.entity';
+import { StudentCourse } from './student-course.entity';
 
 export const enum UserRole {
   Student,
@@ -24,6 +26,12 @@ export class User {
 
   @Column({ default: UserRole.Student })
   role: UserRole;
+  
+  @OneToMany(() => Course, (course) => course.teacher)
+  courses: Course[];
+
+  @OneToMany(() => StudentCourse, (studentCourse) => studentCourse.student)
+  enrolledCourses: StudentCourse[];
 
   @Column({ nullable: true })
   image: string;

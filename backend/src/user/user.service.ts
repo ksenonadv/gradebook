@@ -8,12 +8,12 @@ import * as bcrypt from 'bcryptjs';
 export class UserService {
     constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
 
-    async findTeacherById(id: number) {
-      return await this.userRepo.findOne({ where: { id, role: UserRole.Teacher } });
+    async findTeacherByEmail(email: string) {
+      return await this.userRepo.findOne({ where: { email: email, role: UserRole.Teacher } });
     }
   
-    async findStudentById(id: number) {
-      return await this.userRepo.findOne({ where: { id, role: UserRole.Student } });
+    async findStudentByEmail(email: string) {
+      return await this.userRepo.findOne({ where: { email: email, role: UserRole.Student } });
     }
 
     async findByEmail(email: string) {
