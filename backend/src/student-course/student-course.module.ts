@@ -3,7 +3,7 @@ import { StudentCourseService } from './student-course.service';
 import { StudentCourseController } from './student-course.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { StudentCourse } from '../entities/student-course.entity';
-import { UserModule } from 'src/user/user.module';
+import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
