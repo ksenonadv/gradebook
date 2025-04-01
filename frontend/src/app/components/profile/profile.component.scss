@@ -1,0 +1,19 @@
+::ng-deep .custom-file-upload .p-button {
+    @apply bg-violet-600 text-white font-semibold border-2 border-violet-600 rounded-lg px-2 py-2 text-sm;
+  
+    &:hover {
+      @apply hover:bg-violet-500 hover:border-violet-500 hover:text-white hover:border-2 rounded-lg px-2 py-2 text-sm;
+    }
+}  
+  
+.input {
+    @apply bg-[#09090b] text-gray-200 p-2 rounded-md outline-1 outline-white/60 w-full;
+}
+
+.error {
+    @apply text-red-500 text-sm font-semibold;
+}
+
+.btn {
+    @apply px-1 py-2 rounded-md text-white bg-violet-600 hover:bg-violet-500 disabled:bg-violet-800 disabled:cursor-not-allowed;
+}

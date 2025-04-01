@@ -1,0 +1,39 @@
+<div class="container mx-auto mt-10 p-7 border-2 border-gray-200 rounded-md shadow-lg max-w-lg min-h-[500px]">
+    @if (!user) {
+        <p>Could not display the profile.</p>
+    } @else {
+        <div class="flex flex-col gap-5 items-center justify-center">
+                <img [src]="user.image" alt="Avatar" class="w-40 h-40 rounded-full border" />
+                <p-fileupload 
+                    mode="basic" 
+                    accept="image/*" 
+                    maxFileSize="1000000" 
+                    [auto]="true" 
+                    chooseLabel="Change Image"
+                    [customUpload]="true"
+                    (uploadHandler)="onImageUpload($event)"
+                    styleClass="custom-file-upload"
+                />
+                <div class="flex flex-col items-center">
+                    <span class="text-white font-semibold text-4xl">{{ user.firstName }} {{ user.lastName }}</span>
+                    <span class="text-violet-600 font-semibold text-2xl">{{ user.role === 0 ? 'Teacher' : 'Student' }}</span>
+                </div>
+                <form [formGroup]="form" (ngSubmit)="onSubmit()">
+                    <div class="relative w-full">
+                        <div class="flex flex-row gap-2">
+                            <input type="email" formControlName="email" placeholder="Email" class="input w-full h-10">
+                            <button class="btn w-40 h-10" type="submit" [disabled]="form.invalid">
+                                Change Email
+                            </button>
+                        </div>                    
+                        <div *ngIf="form.get('email')?.errors?.['required'] && (form.get('email')?.dirty || form.get('email')?.touched)" class="error">
+                            Email is required.
+                        </div>
+                        <div *ngIf="form.get('email')?.errors?.['email'] && (form.get('email')?.dirty || form.get('email')?.touched)" class="error">
+                            Invalid email format.
+                        </div>
+                    </div>
+                </form>
+        </div>
+    }
+</div>

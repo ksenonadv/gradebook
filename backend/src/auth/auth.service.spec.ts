@@ -72,7 +72,8 @@ describe('AuthService - register', () => {
       email,
       password: hashedPassword,
       firstName,
-      lastName
+      lastName,
+      image: process.env.DEFAULT_USER_IMAGE
     });
 
     expect(userRepo.save).toHaveBeenCalledWith(mockUser);

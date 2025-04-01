@@ -24,4 +24,7 @@ export class User {
 
   @Column({ default: UserRole.Student })
   role: UserRole;
+
+  @Column({ nullable: true })
+  image: string;
 }

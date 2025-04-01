@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Get, Req } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get, Req, Put } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { IsEmail, IsNotEmpty } from 'class-validator';
 import { AuthGuard } from '@nestjs/passport';
@@ -41,6 +41,13 @@ class ResetPasswordDto {
   password: string;
 }
 
+class ChangeEmailDto {
+  @IsEmail()
+  email: string;
+  @IsEmail()
+  newEmail: string;
+}
+
 @Controller('auth')
 export class AuthController {
   
@@ -74,6 +81,7 @@ export class AuthController {
       lastName: req.user.lastName,
       email: req.user.email,
       role: req.user.role,
+      image: req.user.image ?? process.env.DEFAULT_USER_IMAGE,
     }
   }
 
@@ -91,5 +99,13 @@ export class AuthController {
         body.token, 
         body.password
       );
+  }
+
+  @Put('change-email')
+  changeEmail(@Body() body: ChangeEmailDto){
+    return this.authService.changeEmail(
+      body.email,
+      body.newEmail
+    );
   }
 }

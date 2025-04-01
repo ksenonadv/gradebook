@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
@@ -20,6 +20,8 @@ export class AuthService {
 
     const existingUser = await this.userRepo.findOne({ where: { email } });
 
+    const defaultImage = process.env.DEFAULT_USER_IMAGE;
+
     if (existingUser) {
       throw new InternalServerErrorException(
         'Email already in use'
@@ -30,7 +32,8 @@ export class AuthService {
       email, 
       firstName,
       lastName,
-      password: hashedPassword 
+      password: hashedPassword,
+      image: defaultImage
     });
 
     await this.userRepo.save(
@@ -111,4 +114,47 @@ export class AuthService {
     }
   }
 
+  async changeEmail(email: string, newEmail: string){
+    if (email === newEmail) {
+      throw new BadRequestException(
+        'The new email must be different from the current email.'
+      );
+    }
+
+    const userNewEmail = await this.userRepo.findOne({
+       where: {
+        email: newEmail
+       }
+    });
+    if(userNewEmail){
+      throw new BadRequestException(`
+        There is already a user with the email: ${newEmail}`
+      );
+    }
+
+    const user = await this.userRepo.findOne({
+      where: {
+        email
+      }
+    });
+    if (!user) {
+      throw new UnauthorizedException(
+        `No user found for email: ${email}`
+      );
+    }
+
+    user.email = newEmail;
+    await this.userRepo.save(
+      user
+    );
+
+    const newToken = this.jwtService.sign({ 
+      id: user.id, 
+    });
+
+    return {
+      message: "Email changed",
+      token: newToken
+    }
+  }
 }
