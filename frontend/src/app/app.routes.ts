@@ -5,6 +5,7 @@ import { EmailConfirmationComponent } from './components/email-confirmation/emai
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 import { authGuard } from './guards/auth.guard';
 import { ProfileComponent } from './components/profile/profile.component';
+import { CoursesComponent } from './components/courses/courses.component';
 
 export const routes: Routes = [
   {
@@ -14,6 +15,11 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     component: DashboardComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'courses',
+    component: CoursesComponent,
     canActivate: [authGuard],
   },
   {

@@ -1,0 +1,60 @@
+.dialog-content {
+  background-color: #2d2f3b;
+  padding: 20px;
+  border-radius: 8px;
+  color: #e4e4e7;
+}
+
+.form-field {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.input {
+  @apply bg-[#1e1b4b] text-gray-200 p-2 rounded-md outline-1 outline-white/60 w-full;
+}
+
+.error-message {
+  color: #bb1818;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
+  background-color: #2d2f3b; /* Fundal complet */
+}
+textarea {
+  resize: none; /* Previne redimensionarea */
+}
+
+button {
+  background-color: #7c3aed;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background-color: #6d28d9;
+}
+
+button:disabled {
+  opacity: 0.7;
+}
+
+button.valid {
+  background-color: #7c3aed;
+}
+
+button.valid:hover {
+  background-color: #6d28d9;
+}
+
+button.invalid {
+  background-color: #7c3aed;
+  opacity: 0.7;
+}

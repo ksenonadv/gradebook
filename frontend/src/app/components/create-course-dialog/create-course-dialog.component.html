@@ -1,0 +1,29 @@
+<mat-dialog-content class="dialog-content">
+    <mat-form-field appearance="fill" class="form-field">
+      <mat-label>Course Title</mat-label>
+      <input matInput [(ngModel)]="title" placeholder="Enter course title">
+    </mat-form-field>
+  
+    <mat-form-field appearance="fill" class="form-field">
+      <mat-label>Course Description</mat-label>
+      <textarea matInput [(ngModel)]="description" placeholder="Enter course description" class="description-input"></textarea>
+    </mat-form-field>
+  
+    <div *ngIf="!isFormValid()" class="error-message">
+      Please fill in both fields before creating a course.
+    </div>
+  </mat-dialog-content>
+  
+  <mat-dialog-actions class="dialog-actions">
+    <button mat-button (click)="onCancel()">Cancel</button>
+    <button 
+    mat-raised-button 
+    color="primary" 
+    (click)="onCreate()" 
+    [disabled]="!isFormValid()" 
+    [ngClass]="{'valid': isFormValid(), 'invalid': !isFormValid()}">
+    Done
+  </button>
+  </mat-dialog-actions>
+  
+  

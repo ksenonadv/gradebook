@@ -1,82 +1,75 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { User, UserRole } from '../entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcryptjs';
 import { EmailService } from '../email/email.service';
+import { UserService } from '../user/user.service';
+import { UserRole } from '../entities/user.entity';
 
 describe('AuthService - register', () => {
   
   let authService: AuthService;
-  let userRepo: any;
+  let userService: any;
+  let emailService: any;
+  let jwtService: any;
 
   beforeEach(async () => {
-    
-    const mockUserRepo = {
-      create: jest.fn(),
-      save: jest.fn(),
+    const mockUserService = {
+      createUser: jest.fn(),
+      findByEmail: jest.fn(),
+      updatePassword: jest.fn(),
+    };
+
+    const mockEmailService = {
+      sendResetPasswordLink: jest.fn(),
+      decodeConfirmationToken: jest.fn(),
+    };
+
+    const mockJwtService = {
+      sign: jest.fn().mockReturnValue('mockToken'),
     };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
-        {
-          provide: getRepositoryToken(User),
-          useValue: mockUserRepo,
-        },
-        {
-          provide: JwtService,
-          useValue: {
-            sign: jest.fn().mockReturnValue('mockToken'),
-          },
-        },
-        {
-          provide: EmailService,
-          useValue: {
-            sendResetPasswordLink: jest.fn(),
-            decodeConfirmationToken: jest.fn(),
-          },
-        },
+        { provide: UserService, useValue: mockUserService },
+        { provide: EmailService, useValue: mockEmailService },
+        { provide: JwtService, useValue: mockJwtService },
       ],
     }).compile();
 
     authService = module.get<AuthService>(AuthService);
-    userRepo = module.get(getRepositoryToken(User));
+    userService = module.get<UserService>(UserService);
+    emailService = module.get<EmailService>(EmailService);
+    jwtService = module.get<JwtService>(JwtService);
   });
 
   it('should register a user successfully', async () => {
-    
     const email = 'test@example.com';
     const firstName = 'John';
     const lastName = 'Doe';
     const password = 'password123';
-    const hashedPassword = 'hashed123';
 
-    jest.spyOn(bcrypt, 'hash').mockReturnValue(hashedPassword as any);
+    userService.createUser.mockResolvedValue(undefined);
 
-    const mockUser = { email, password: hashedPassword, firstName, lastName, role: UserRole.Student };
-    userRepo.create.mockReturnValue(mockUser);
-    userRepo.findOne = jest.fn().mockResolvedValue(null);
-    userRepo.save.mockResolvedValue(mockUser);
+    const result = await authService.register(email, firstName, lastName, password);
 
-    const result = await authService.register(
-      email, 
-      firstName, 
-      lastName, 
-      password
-    );
-
-    expect(bcrypt.hash).toHaveBeenCalledWith(password, 10);
-    expect(userRepo.create).toHaveBeenCalledWith({
-      email,
-      password: hashedPassword,
-      firstName,
-      lastName,
-      image: process.env.DEFAULT_USER_IMAGE
-    });
-
-    expect(userRepo.save).toHaveBeenCalledWith(mockUser);
+    expect(userService.createUser).toHaveBeenCalledWith(email, firstName, lastName, password, UserRole.Student, process.env.DEFAULT_USER_IMAGE);
     expect(result).toEqual({ message: 'You are now registered' });
   });
+
+  it('should reset the password successfully', async () => {
+    const email = 'test@example.com';
+    const token = 'validToken';
+    const newPassword = 'newPassword123';
+
+    emailService.decodeConfirmationToken.mockResolvedValue(email);
+    userService.updatePassword.mockResolvedValue(undefined);
+
+    const result = await authService.resetPassword(token, newPassword);
+
+    expect(emailService.decodeConfirmationToken).toHaveBeenCalledWith(token);
+    expect(userService.updatePassword).toHaveBeenCalledWith(email, newPassword);
+    expect(result).toEqual({ message: 'Password changed' });
+  });
+
 });
