@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 
 export const enum UserRole {
   Student,
@@ -14,13 +14,13 @@ export class User {
   email: string;
 
   @Column()
-  password: string;
-
-  @Column()
   firstName: string;
 
   @Column()
   lastName: string;
+
+  @Column()
+  password: string;
 
   @Column({ default: UserRole.Student })
   role: UserRole;
