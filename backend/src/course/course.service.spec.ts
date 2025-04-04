@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Course } from '../entities/course.entity';
 import { NotFoundException } from '@nestjs/common';
+import { StudentCourseGrade } from '../entities/grade.entity';
 
 describe('CourseService', () => {
   let service: CourseService;
@@ -35,6 +36,7 @@ describe('CourseService', () => {
         { provide: UserService, useValue: mockUserService },
         { provide: StudentCourseService, useValue: mockStudentCourseService },
         { provide: getRepositoryToken(Course), useValue: mockCourseRepo },
+        { provide: getRepositoryToken(StudentCourseGrade), useValue: {} },
       ],
     }).compile();
 

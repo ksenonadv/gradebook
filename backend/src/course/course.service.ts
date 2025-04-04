@@ -4,8 +4,8 @@ import { Repository } from 'typeorm';
 import { Course } from '../entities/course.entity';
 import { UserService } from '../user/user.service';
 import { StudentCourseService } from '../student-course/student-course.service';
-import { User } from 'src/entities/user.entity';
-import { StudentCourseGrade } from 'src/entities/grade.entity';
+import { User } from '../entities/user.entity';
+import { StudentCourseGrade } from '../entities/grade.entity';
 
 @Injectable()
 export class CourseService {
