@@ -69,6 +69,7 @@ export class CourseService {
     });
   
     return courses.map(course => ({
+      id: course.id,
       title: course.title,
       description: course.description,
       teacher: {
@@ -91,6 +92,7 @@ export class CourseService {
   async findCoursesByStudent(studentEmail: string) {
     const courses = await this.studentCourseService.getCoursesForStudent(studentEmail);
     return courses.map(course => ({
+      id: course.id,
       title: course.title,
       description: course.description,
       teacher: {
