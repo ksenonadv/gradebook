@@ -14,7 +14,6 @@ import { InputDialogService } from '../../services/input-dialog.service';
   styleUrl: './course.component.scss',
   standalone: true,
   imports: [CommonModule],
-  providers: [InputDialogService]
 })
 export class CourseComponent {
 
@@ -53,38 +52,35 @@ export class CourseComponent {
     return this.course?.teacher.email === this.user?.email;
   }
 
-  public enrollStudent(): void {
+  public async enrollStudent() {
     
-    this.inputDialogService.open({
+   const result = await this.inputDialogService.open({
       title: 'Enroll Student',
       label: `Enter the student's email:`,
       type: 'text',
       value: '',
       buttonSubmitText: 'Enroll',
-    }).then((result) => {
-
-      if (!result)
-        return;
-
-      this.courseService.enrollStudent(this.course!.title, result, this.course!.teacher.email).then((response: any) => {
-        this.notificationsService.success(
-          'Success',
-          response.message
-        );
-      }).catch(error => {
-        this.notificationsService.error(
-          'Error',
-          error
-        );
-      });
-
     });
 
+    if (!result)
+      return;
+
+    this.courseService.enrollStudent(this.course!.title, result, this.course!.teacher.email).then((response: any) => {
+      this.notificationsService.success(
+        'Success',
+        response.message
+      );
+    }).catch(error => {
+      this.notificationsService.error(
+        'Error',
+        error
+      );
+    });
   }
 
-  public addStudentGrade(student: CourseStudent): void {
+  public async addStudentGrade(student: CourseStudent) {
 
-    this.inputDialogService.open({
+    const result = await this.inputDialogService.open({
       title: 'Add Student Grade',
       label: `Enter the grade:`,
       type: 'number',
@@ -92,34 +88,32 @@ export class CourseComponent {
       min: 1,
       max: 10,
       buttonSubmitText: 'Grade Student',
-    }).then((result) => {
+    });
 
-      if (!result)
-        return;
+    if (!result)
+      return;
 
-      this.courseService.addStudentGrade(this.course!.id, student.email, parseInt(result)).then((response: CourseGrade) => {
+    this.courseService.addStudentGrade(this.course!.id, student.email, parseInt(result)).then((response: CourseGrade) => {
 
-        student.grades.push(
-          response
-        );
+      student.grades.push(
+        response
+      );
 
-        this.notificationsService.success(
-          'Success',
-          'Grade added successfully'
-        );
-      }).catch(error => {
-        this.notificationsService.error(
-          'Error',
-          error
-        );
-      });
-
+      this.notificationsService.success(
+        'Success',
+        'Grade added successfully'
+      );
+    }).catch(error => {
+      this.notificationsService.error(
+        'Error',
+        error
+      );
     });
   }
 
-  public editStudentGrade(student: CourseStudent, grade: CourseGrade) {
+  public async editStudentGrade(student: CourseStudent, grade: CourseGrade) {
 
-    this.inputDialogService.open({
+    const result = await this.inputDialogService.open({
       title: `Edit ${student.firstName} ${student.lastName}'s Grade`,
       label: `Enter the new grade:`,
       type: 'number',
@@ -127,59 +121,54 @@ export class CourseComponent {
       min: 1,
       max: 10,
       buttonSubmitText: 'Edit Grade',
-    }).then((result) => {
-
-      if (!result)
-        return;
-
-      const editGrade = parseInt(result);
-
-      this.courseService.editStudentGrade(grade.id, editGrade).then(() => {
-
-        grade.grade = editGrade;
-
-        this.notificationsService.success(
-          'Success',
-          'Grade edited successfully'
-        );
-
-      }).catch(error => {
-        this.notificationsService.error(
-          'Error',
-          error
-        );
-      });
-
     });
 
+    if (!result)
+      return;
+
+    const editGrade = parseInt(result);
+
+    this.courseService.editStudentGrade(grade.id, editGrade).then(() => {
+
+      grade.grade = editGrade;
+
+      this.notificationsService.success(
+        'Success',
+        'Grade edited successfully'
+      );
+
+    }).catch(error => {
+      this.notificationsService.error(
+        'Error',
+        error
+      );
+    });
   }
 
-  public deleteStudentGrade(student: CourseStudent, grade: CourseGrade) {
+  public async deleteStudentGrade(student: CourseStudent, grade: CourseGrade) {
 
-    this.inputDialogService.confirm(
+    const confirmed = await this.inputDialogService.confirm(
       'Delete Student Grade',
       `Are you sure you want to delete ${student.firstName} ${student.lastName}'s grade?`
-    ).then((confirmed) => {
+    );
 
-      if (!confirmed)
-        return;
+    if (!confirmed)
+      return;
 
-      this.courseService.deleteStudentGrade(grade.id).then(() => {
+    this.courseService.deleteStudentGrade(grade.id).then(() => {
 
-        student.grades = student.grades.filter((g) => g.id !== grade.id);
+      student.grades = student.grades.filter((g) => g.id !== grade.id);
 
-        this.notificationsService.success(
-          'Success',
-          'Grade deleted successfully'
-        );
+      this.notificationsService.success(
+        'Success',
+        'Grade deleted successfully'
+      );
 
-      }).catch(error => {
-        this.notificationsService.error(
-          'Error',
-          error
-        );
-      });
-
+    }).catch(error => {
+      this.notificationsService.error(
+        'Error',
+        error
+      );
     });
 
   }
