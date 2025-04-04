@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Course } from '../entities/course.entity';
 import { UserService } from '../user/user.service';
 import { StudentCourseService } from '../student-course/student-course.service';
+import { User } from 'src/entities/user.entity';
 
 @Injectable()
 export class CourseService {
@@ -125,5 +126,46 @@ export class CourseService {
         image: student.image ?? process.env.DEFAULT_USER_IMAGE, 
       };
     });
+  }
+
+  async getCourse(id: number, user: User) {
+
+    const course = await this.courseRepo.findOne({ 
+      where: { id },
+      relations: ['students', 'students.student', 'teacher'],
+    });
+
+    if (!course) {
+      throw new NotFoundException(
+        `No course found with id: ${id}`
+      );
+    }
+
+    if (course.teacher.id !== user.id && !course.students.some(student => student.student.id !== user.id)) {
+      throw new BadRequestException(
+        'You are not authorized to view this course'
+      );
+    }
+
+    return {
+      id: course.id,
+      title: course.title,
+      description: course.description,
+      teacher: {
+        firstName: course.teacher.firstName,
+        lastName: course.teacher.lastName,
+        email: course.teacher.email,
+        role: course.teacher.role,
+        image: course.teacher.image ?? process.env.DEFAULT_USER_IMAGE, 
+      },
+      students: course.teacher.id == user.id ? course.students.map(studentCourse => ({
+        firstName: studentCourse.student.firstName,
+        lastName: studentCourse.student.lastName,
+        email: studentCourse.student.email,
+        role: studentCourse.student.role,
+        image: studentCourse.student.image ?? process.env.DEFAULT_USER_IMAGE, 
+      })) : undefined,
+      grades: course.teacher.id == user.id ? [] : undefined,
+    };
   }
 }

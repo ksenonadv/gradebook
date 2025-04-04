@@ -1,6 +1,7 @@
-import { Controller, Post, Delete, Body } from '@nestjs/common';
+import { Controller, Post, Delete, Body, Req, UseGuards } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { IsEmail, IsNotEmpty } from 'class-validator';
+import { AuthGuard } from '@nestjs/passport';
 
 class CreateCourseDto {
   @IsNotEmpty()
@@ -54,6 +55,7 @@ export class CourseController {
   ) {}
 
   @Post('create')
+  @UseGuards(AuthGuard('jwt'))
   async createCourse(@Body() createCourseDto: CreateCourseDto) {
     return await this.courseService.createCourse(
       createCourseDto.title, 
@@ -63,6 +65,7 @@ export class CourseController {
   }
 
   @Delete('delete')
+  @UseGuards(AuthGuard('jwt'))
   async destroyCourse(@Body() destroyCourseDto: DestroyCourseDto) {
     return await this.courseService.destroyCourse(
       destroyCourseDto.title, 
@@ -71,6 +74,7 @@ export class CourseController {
   }
 
   @Post('enroll')
+  @UseGuards(AuthGuard('jwt'))
   async enrollStudent(@Body() enrollStudentDto: EnrollStudentDto) {
     return await this.courseService.enrollStudent(
       enrollStudentDto.courseTitle, 
@@ -80,17 +84,29 @@ export class CourseController {
   }
 
   @Post('findByTeacher')
+  @UseGuards(AuthGuard('jwt'))
   async findCoursesByTeacher(@Body() findCoursesByTeacherDto: FindCoursesByTeacherDto) {
     return await this.courseService.findCoursesByTeacher(findCoursesByTeacherDto.teacherEmail);
   }
 
   @Post('findByStudent')
+  @UseGuards(AuthGuard('jwt'))
   async findCoursesByStudent(@Body() findCoursesByStudentDto: FindCoursesByStudentDto) {
     return await this.courseService.findCoursesByStudent(findCoursesByStudentDto.studentEmail);
   }
 
   @Post('getStudentsForCourse')
+  @UseGuards(AuthGuard('jwt'))
   async getStudentsForCourse(@Body() getStudentsForCourseDto: GetStudentsForCourseDto) {
     return await this.courseService.getStudentsForCourse(getStudentsForCourseDto.courseTitle);
+  }
+
+  @Post('getCourse')
+  @UseGuards(AuthGuard('jwt'))
+  async getCourse(@Req() req: any, @Body('id') id: number) {
+    return await this.courseService.getCourse(
+      id,
+      req.user
+    );
   }
 }
