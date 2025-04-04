@@ -132,7 +132,7 @@ export class CourseService {
 
     const course = await this.courseRepo.findOne({ 
       where: { id },
-      relations: ['students', 'students.student', 'teacher'],
+      relations: ['students', 'students.student', 'students.grades', 'teacher'],
     });
 
     if (!course) {
@@ -164,8 +164,13 @@ export class CourseService {
         email: studentCourse.student.email,
         role: studentCourse.student.role,
         image: studentCourse.student.image ?? process.env.DEFAULT_USER_IMAGE, 
+        grades: studentCourse.grades.map(grade => ({
+          id: grade.id,
+          date: grade.date,
+          grade: grade.grade,
+        })),
       })) : undefined,
-      grades: course.teacher.id == user.id ? [] : undefined,
+      grades: course.teacher.id == user.id ? course.students.find(s => s.student.id == user.id)?.grades : undefined,
     };
   }
 }
