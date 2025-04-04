@@ -36,7 +36,9 @@ export class AuthService {
           this.userData.next(
             user
           );
-        });
+        }, () => {
+          this.logout();
+        })
       }
     });
 
