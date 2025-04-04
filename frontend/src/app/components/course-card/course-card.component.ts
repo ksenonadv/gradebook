@@ -19,17 +19,16 @@ import { Router } from '@angular/router';
   styleUrl: './course-card.component.scss'
 })
 export class CourseCardComponent {
+  
   @Input() course: any;
-  @Input() userRole: UserRole | undefined;
+  @Input() isTeacher: boolean = false;
 
-  @Output() courseDeleted = new EventEmitter<string>();
-  @Output() studentEnrolled = new EventEmitter<string>();
   private readonly notificationsService = inject(NotificationsService);
   
   constructor(private courseService: CourseService, private dialog: MatDialog, private router: Router) {}
 
   deleteCourse(): void {
-    if (this.userRole === UserRole.Teacher) {
+    if (this.isTeacher) {
       this.courseService.destroyCourse(this.course.title, this.course.teacher.email)
       .then((response: any) => {
         this.notificationsService.success(
@@ -46,29 +45,14 @@ export class CourseCardComponent {
     }
   }
 
-  enrollStudent(): void {
-    if (this.userRole === UserRole.Teacher) {
-      const studentEmail = prompt("Enter the student's email:");
-      if (studentEmail) {
-        this.courseService.enrollStudent(this.course.title, studentEmail, this.course.teacher.email)
-        .then((response: any) => {
-          this.notificationsService.success(
-            'Success',
-            response.message
-          );
-        }).catch(error => {
-          this.notificationsService.error(
-            'Error',
-            error
-          );
-        });
-      }
-    }
-  }
-
   refreshPage() {
     this.router.navigateByUrl('/').then(() => {
       this.router.navigate(['/courses']);
     });
   }
+
+  goToCourseDetails() {
+    this.router.navigate(['/course', this.course.id]);
+  }
+
 }

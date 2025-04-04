@@ -1,11 +1,17 @@
-<div class="course-header" *ngIf="user?.role === 1">
-  <button mat-raised-button color="primary" (click)="openCreateCourseDialog()">Create New Course</button>
-</div>
+<div class="container mx-auto px-4">
+  <div class="flex justify-start my-4">
+    <button 
+      *ngIf="user?.role === 1"
+      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" 
+      (click)="openCreateCourseDialog()">
+      Create New Course
+    </button>
+  </div>
 
-<div class="courses-grid">
-  <app-course-card 
-    *ngFor="let course of courses"
-    [course]="course"
-    [userRole]="user?.role">
-  </app-course-card>
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    <app-course-card 
+      *ngFor="let course of courses"
+      [course]="course" [isTeacher]="user?.role === 1">
+    </app-course-card>
+  </div>
 </div>

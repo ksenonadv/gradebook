@@ -6,6 +6,7 @@ import { ResetPasswordComponent } from './components/reset-password/reset-passwo
 import { authGuard } from './guards/auth.guard';
 import { ProfileComponent } from './components/profile/profile.component';
 import { CoursesComponent } from './components/courses/courses.component';
+import { CourseComponent } from './components/course/course.component';
 
 export const routes: Routes = [
   {
@@ -20,6 +21,11 @@ export const routes: Routes = [
   {
     path: 'courses',
     component: CoursesComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'course/:id',
+    component: CourseComponent,
     canActivate: [authGuard],
   },
   {

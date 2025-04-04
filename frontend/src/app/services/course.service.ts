@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environment/environment';
+import { CoursePageInfo } from '../interfaces/course.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -67,6 +68,15 @@ export class CourseService {
       this.http.post<any>(`${this.apiUrl}/getStudentsForCourse`, getStudentsForCourseDto).subscribe({
         next: (response) => resolve(response),
         error: (error) => reject(error.error?.message || 'An error occurred while fetching students for the course'),
+      });
+    });
+  }
+
+  getCourse(id: number) {
+    return new Promise<CoursePageInfo>((resolve, reject) => {
+      this.http.post<CoursePageInfo>(`${this.apiUrl}/getCourse`, { id }).subscribe({
+        next: (response) => resolve(response),
+        error: (error) => reject(error.error?.message || 'An error occurred while fetching the course'),
       });
     });
   }

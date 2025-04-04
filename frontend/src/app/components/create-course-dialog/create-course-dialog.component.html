@@ -1,29 +1,41 @@
-<mat-dialog-content class="dialog-content">
-    <mat-form-field appearance="fill" class="form-field">
-      <mat-label>Course Title</mat-label>
-      <input matInput [(ngModel)]="title" placeholder="Enter course title">
-    </mat-form-field>
-  
-    <mat-form-field appearance="fill" class="form-field">
-      <mat-label>Course Description</mat-label>
-      <textarea matInput [(ngModel)]="description" placeholder="Enter course description" class="description-input"></textarea>
-    </mat-form-field>
-  
-    <div *ngIf="!isFormValid()" class="error-message">
-      Please fill in both fields before creating a course.
-    </div>
-  </mat-dialog-content>
-  
-  <mat-dialog-actions class="dialog-actions">
-    <button mat-button (click)="onCancel()">Cancel</button>
+<div class="p-6 bg-[#2c2e3b]" mat-dialog-content>
+  <div class="mb-4">
+    <label class="block text-sm font-medium text-white">Course Title</label>
+    <input 
+      type="text" 
+      class="mt-1 block w-full rounded-md border-gray-300 text-gray-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm bg-black/20 p-1" 
+      [(ngModel)]="title" 
+      placeholder="Enter course title"
+    />
+  </div>
+
+  <div class="mb-4">
+    <label class="block text-sm font-medium text-white">Course Description</label>
+    <textarea 
+      class="mt-1 block w-full rounded-md border-gray-300 text-gray-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm bg-black/20 p-1" 
+      [(ngModel)]="description" 
+      placeholder="Enter course description"
+    ></textarea>
+  </div>
+
+  <div *ngIf="!isFormValid()" class="text-red-500 text-sm mb-4">
+    Please fill in both fields before creating a course.
+  </div>
+
+  <div class="flex justify-end space-x-4">
     <button 
-    mat-raised-button 
-    color="primary" 
-    (click)="onCreate()" 
-    [disabled]="!isFormValid()" 
-    [ngClass]="{'valid': isFormValid(), 'invalid': !isFormValid()}">
-    Done
-  </button>
-  </mat-dialog-actions>
-  
-  
+      class="px-4 py-2 text-sm font-medium text-white bg-gray-100 rounded-md hover:bg-gray-200" 
+      (click)="onCancel()"
+    >
+      Cancel
+    </button>
+    <button 
+      class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed" 
+      (click)="onCreate()" 
+      [disabled]="!isFormValid()"
+      [ngClass]="{'bg-indigo-600': isFormValid(), 'bg-gray-400': !isFormValid()}"
+    >
+      Done
+    </button>
+  </div>
+</div>
