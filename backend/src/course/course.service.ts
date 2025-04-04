@@ -5,11 +5,13 @@ import { Course } from '../entities/course.entity';
 import { UserService } from '../user/user.service';
 import { StudentCourseService } from '../student-course/student-course.service';
 import { User } from 'src/entities/user.entity';
+import { StudentCourseGrade } from 'src/entities/grade.entity';
 
 @Injectable()
 export class CourseService {
   constructor(
     @InjectRepository(Course) private courseRepo: Repository<Course>,
+    @InjectRepository(StudentCourseGrade) private studentCourseGradeRepo: Repository<StudentCourseGrade>,
     private userService: UserService,
     private studentCourseService: StudentCourseService,
   ) {}
@@ -173,4 +175,96 @@ export class CourseService {
       grades: course.teacher.id == user.id ? course.students.find(s => s.student.id == user.id)?.grades : undefined,
     };
   }
+
+  async addStudentGrade(courseId: number, studentEmail: string, grade: number, teacher: User) {
+
+    const course = await this.courseRepo.findOne({
+      where: { id: courseId },
+      relations: ['teacher', 'students', 'students.student']
+    });
+
+    if (!course) {
+      throw new NotFoundException(
+        `No course found with id: ${courseId}`
+      );
+    }
+
+    if (course.teacher.id !== teacher.id) {
+      throw new BadRequestException(
+        'You are not authorized to add grades for this course'
+      );
+    }
+
+    const student = course.students.find(student => student.student.email === studentEmail);
+
+    if (!student) {
+      throw new NotFoundException(
+        `No student found with email: ${studentEmail}`
+      );
+    }
+
+    const grade_entity = await this.studentCourseGradeRepo.create({
+      studentCourse: student,
+      date: new Date(),
+      grade: grade,
+    });
+
+    await this.studentCourseGradeRepo.save(grade_entity);
+
+    return {
+      id: grade_entity.id,
+      date: grade_entity.date,
+      grade: grade_entity.grade
+    };
+  }
+
+  async editStudentGrade(gradeId: number, grade: number, teacher: User) {
+    
+    const gradeEntity = await this.studentCourseGradeRepo.findOne({
+      where: { id: gradeId },
+      relations: ['studentCourse', 'studentCourse.course', 'studentCourse.course.teacher'],
+    });
+
+    if (!gradeEntity) {
+      throw new NotFoundException(
+        `No grade found with id: ${gradeId}`
+      );
+    }
+
+    if (gradeEntity.studentCourse.course.teacher.id !== teacher.id) {
+      throw new BadRequestException(
+        'You are not authorized to edit this grade'
+      );
+    }
+
+    gradeEntity.grade = grade;
+    await this.studentCourseGradeRepo.save(gradeEntity);
+
+    return true;
+  }
+
+  async deleteStudentGrade(gradeId: number, teacher: User) {
+
+    const grade = await this.studentCourseGradeRepo.findOne({
+      where: { id: gradeId },
+      relations: ['studentCourse', 'studentCourse.course', 'studentCourse.course.teacher'],
+    });
+
+    if (!grade) {
+      throw new NotFoundException(
+        `No grade found with id: ${gradeId}`
+      );
+    }
+
+    if (grade.studentCourse.course.teacher.id !== teacher.id) {
+      throw new BadRequestException(
+        'You are not authorized to delete this grade'
+      );
+    }
+
+    await this.studentCourseGradeRepo.remove(grade);
+
+    return true;
+  }
+
 }
