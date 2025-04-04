@@ -2,6 +2,8 @@ import { Controller, Post, Delete, Body, Req, UseGuards } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { IsEmail, IsNotEmpty } from 'class-validator';
 import { AuthGuard } from '@nestjs/passport';
+import { Roles } from 'src/guards/role.guard';
+import { UserRole } from 'src/entities/user.entity';
 
 class CreateCourseDto {
   @IsNotEmpty()
@@ -48,6 +50,30 @@ class GetStudentsForCourseDto {
   courseTitle: string;
 }
 
+class AddStudentGradeDto {
+  @IsNotEmpty()
+  courseId: number;
+
+  @IsEmail()
+  studentEmail: string;
+
+  @IsNotEmpty()
+  grade: number;
+}
+
+class DeleteStudentGradeDto {
+  @IsNotEmpty()
+  id: number;
+}
+
+class EditStudentGradeDto {
+  @IsNotEmpty()
+  id: number;
+
+  @IsNotEmpty()
+  grade: number;
+}
+
 @Controller('course')
 export class CourseController {
   constructor(
@@ -55,6 +81,7 @@ export class CourseController {
   ) {}
 
   @Post('create')
+  @Roles(UserRole.Teacher)
   @UseGuards(AuthGuard('jwt'))
   async createCourse(@Body() createCourseDto: CreateCourseDto) {
     return await this.courseService.createCourse(
@@ -65,6 +92,7 @@ export class CourseController {
   }
 
   @Delete('delete')
+  @Roles(UserRole.Teacher)
   @UseGuards(AuthGuard('jwt'))
   async destroyCourse(@Body() destroyCourseDto: DestroyCourseDto) {
     return await this.courseService.destroyCourse(
@@ -74,6 +102,7 @@ export class CourseController {
   }
 
   @Post('enroll')
+  @Roles(UserRole.Teacher)
   @UseGuards(AuthGuard('jwt'))
   async enrollStudent(@Body() enrollStudentDto: EnrollStudentDto) {
     return await this.courseService.enrollStudent(
@@ -109,4 +138,38 @@ export class CourseController {
       req.user
     );
   }
+
+  @Post('addStudentGrade')
+  @Roles(UserRole.Teacher)
+  @UseGuards(AuthGuard('jwt'))
+  async addStudentGrade(@Req() req: any, @Body() addStudentGradeDto: AddStudentGradeDto) {
+    return await this.courseService.addStudentGrade(
+      addStudentGradeDto.courseId,
+      addStudentGradeDto.studentEmail,
+      addStudentGradeDto.grade,
+      req.user,
+    );
+  }
+
+  @Post('editStudentGrade')
+  @Roles(UserRole.Teacher)
+  @UseGuards(AuthGuard('jwt'))
+  async editStudentGrade(@Req() req: any, @Body() dto: EditStudentGradeDto) {
+    return await this.courseService.editStudentGrade(
+      dto.id,
+      dto.grade,
+      req.user
+    );
+  }
+
+  @Post('deleteStudentGrade')
+  @Roles(UserRole.Teacher)
+  @UseGuards(AuthGuard('jwt'))
+  async deleteStudentGrade(@Req() req: any, @Body() dto: DeleteStudentGradeDto) {
+    return await this.courseService.deleteStudentGrade(
+      dto.id,
+      req.user
+    );
+  }
+
 }
