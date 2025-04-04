@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environment/environment';
-import { CoursePageInfo } from '../interfaces/course.interface';
+import { CourseGrade, CoursePageInfo } from '../interfaces/course.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -80,4 +80,35 @@ export class CourseService {
       });
     });
   }
+
+  addStudentGrade(courseId: number, studentEmail: string, grade: number): Promise<CourseGrade> {
+    const addStudentGradeDto = { courseId, studentEmail, grade };
+    return new Promise<CourseGrade>((resolve, reject) => {
+      this.http.post<CourseGrade>(`${this.apiUrl}/addStudentGrade`, addStudentGradeDto).subscribe({
+        next: (response) => resolve(response),
+        error: (error) => reject(error.error?.message || 'An error occurred while adding the student grade'),
+      });
+    });
+  }
+
+  editStudentGrade(id: number, grade: number): Promise<boolean> {
+    const editStudentGradeDto = { id, grade };
+    return new Promise<boolean>((resolve, reject) => {
+      this.http.post<boolean>(`${this.apiUrl}/editStudentGrade`, editStudentGradeDto).subscribe({
+        next: (response) => resolve(response),
+        error: (error) => reject(error.error?.message || 'An error occurred while editing the student grade'),
+      });
+    });
+  }
+
+  deleteStudentGrade(id: number): Promise<boolean> {
+    const deleteStudentGradeDto = { id };
+    return new Promise<boolean>((resolve, reject) => {
+      this.http.post<boolean>(`${this.apiUrl}/deleteStudentGrade`, deleteStudentGradeDto).subscribe({
+        next: (response) => resolve(response),
+        error: (error) => reject(error.error?.message || 'An error occurred while deleting the student grade'),
+      });
+    });
+  }
+
 }

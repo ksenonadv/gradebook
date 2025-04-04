@@ -6,11 +6,19 @@ export interface Course {
   teacher: User;
 }
 
+export interface CourseGrade {
+  id: number;
+  date: Date;
+  grade: number;
+};
+
+export type CourseStudent = User & { grades: Array<CourseGrade>; };
+
 export interface CoursePageInfo {
   id: number;
   title: string;
   description: string;
   teacher: User;
-  students?: Array<User>;
-  grades?: Array<any>;
+  students?: Array<CourseStudent>;
+  grades?: Array<CourseGrade>;
 }

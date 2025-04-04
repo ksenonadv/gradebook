@@ -10,9 +10,12 @@
       <p class="block text-sm font-medium text-gray-100">Description</p>
       <p class="mt-1 text-white">{{ course.description }}</p>
     </div>
-    <div class="mb-4">
+    <div class="mb-0">
       <p class="block text-sm font-medium text-gray-100">Teacher</p>
-      <p class="mt-1 text-white">{{ course.teacher.firstName }} {{ course.teacher.lastName }}</p>
+      <div class = "flex items-center justify-start mt-2">
+        <img [src]="course.teacher.image" alt="Student Avatar" class="w-10 h-10 rounded-full mr-2" />
+        <p class="text-gray-100 font-medium">{{ course.teacher.firstName }} {{ course.teacher.lastName }}</p>
+     </div>
     </div>
   </div>
 
@@ -50,9 +53,35 @@
               <p class="text-gray-100 font-medium">{{ student.firstName }} {{ student.lastName }}</p>
            </div>
           </td>
-          <td class="border border-gray-700 px-4 py-2 text-gray-100">
-            <div class = "flex justify-center">
-              <button class="bg-green-500 hover:bg-green-600 text-white py-1 px-2 rounded text-sm font-bold flex items-center">+</button>
+          <td class="border border-gray-700 px-4 py-2 text-gray-100">            
+
+            <div class="flex flex-wrap gap-2">
+              <span 
+                *ngFor="let grade of student.grades" 
+                class="bg-blue-500 text-white text-xs font-bold py-1 px-2 rounded-full"
+              >
+                {{ grade.date | date:'shortDate' }}: {{ grade.grade }}
+
+                <button 
+                  class="bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-bold py-1 px-2 rounded-full ml-2" 
+                  (click)="editStudentGrade(student, grade)"
+                >
+                  Edit
+                </button>
+                <button 
+                  class="bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-1 px-2 rounded-full ml-2" 
+                  (click)="deleteStudentGrade(student, grade)"
+                >
+                  Delete
+                </button>
+
+              </span>
+
+              <div class = "flex justify-center" (click)="addStudentGrade(student)">
+                <button class="bg-green-500 hover:bg-green-600 text-white py-1 px-2 text-sm font-bold flex items-center rounded-full">
+                  Grade {{ student.firstName }}
+                </button>
+              </div>
             </div>
           </td>
         </tr>
