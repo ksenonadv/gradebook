@@ -1,6 +1,6 @@
 import { Controller, Post, Delete, Body, Req, UseGuards } from '@nestjs/common';
 import { CourseService } from './course.service';
-import { IsEmail, IsNotEmpty } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsNumber, Max, Min } from 'class-validator';
 import { AuthGuard } from '@nestjs/passport';
 import { Roles } from 'src/guards/role.guard';
 import { UserRole } from 'src/entities/user.entity';
@@ -58,6 +58,13 @@ class AddStudentGradeDto {
   studentEmail: string;
 
   @IsNotEmpty()
+  @IsNumber({
+    allowInfinity: false,
+    allowNaN: false,
+    maxDecimalPlaces: 0,
+  })
+  @Min(1)
+  @Max(10)
   grade: number;
 }
 
@@ -71,6 +78,13 @@ class EditStudentGradeDto {
   id: number;
 
   @IsNotEmpty()
+  @IsNumber({
+    allowInfinity: false,
+    allowNaN: false,
+    maxDecimalPlaces: 0,
+  })
+  @Min(1)
+  @Max(10)
   grade: number;
 }
 
