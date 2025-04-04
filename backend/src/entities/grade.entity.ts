@@ -8,7 +8,7 @@ export class StudentCourseGrade {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToOne(() => StudentCourse, (studentCourse) => studentCourse.id, { onDelete: 'CASCADE' })
+  @ManyToOne(() => StudentCourse, (studentCourse) => studentCourse.id, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'studentCourseId' })
   studentCourse: StudentCourse;
 
