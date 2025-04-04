@@ -2,8 +2,8 @@ import { Controller, Post, Delete, Body, Req, UseGuards } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { IsEmail, IsNotEmpty, IsNumber, Max, Min } from 'class-validator';
 import { AuthGuard } from '@nestjs/passport';
-import { Roles } from 'src/guards/role.guard';
-import { UserRole } from 'src/entities/user.entity';
+import { Roles } from '../guards/role.guard';
+import { UserRole } from '../entities/user.entity';
 
 class CreateCourseDto {
   @IsNotEmpty()
