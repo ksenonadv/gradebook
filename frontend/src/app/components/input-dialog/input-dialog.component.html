@@ -1,0 +1,33 @@
+<div class="p-6 bg-[#2c2e3b]" mat-dialog-content>
+  <h1 class="text-xl font-bold text-center mb-4">{{ data.title }}</h1>
+
+  <div class="mb-4" *ngIf="data.type !== 'confirm'">
+    <label class="block text-sm font-medium text-white">{{ data.label }}</label>
+    <input
+      [type]="data.type"
+      class="mt-1 block w-full rounded-md border-gray-300 text-gray-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ring-0 sm:text-sm bg-black/20 p-1"
+      [(ngModel)]="data.value"
+      [min]="data.min"
+      [max]="data.max"
+    />
+  </div>
+
+  <div class = "mb-4" *ngIf="data.type === 'confirm'">
+    <label class="block text-sm font-medium text-white">{{ data.label }}</label>
+  </div>
+
+  <div class="text-center mt-4 flex gap-2 justify-center">
+    <button
+      (click)="submit()"
+      class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+    >
+      {{ data.buttonSubmitText ?? 'Submit' }}
+    </button>
+    <button
+      (click)="close()"
+      class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+    >
+      {{ data.buttonCancelText ?? 'Close' }}
+    </button>
+  </div>
+</div>

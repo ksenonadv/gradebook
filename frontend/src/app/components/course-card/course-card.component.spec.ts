@@ -3,8 +3,6 @@ import { CourseCardComponent } from './course-card.component';
 import { CourseService } from '../../services/course.service';
 import { NotificationsService } from '../../services/notifications.service';
 import { MatDialog } from '@angular/material/dialog';
-import { UserRole } from '../../interfaces/user.interface';
-import { of, throwError } from 'rxjs';
 
 describe('CourseCardComponent', () => {
   let component: CourseCardComponent;
@@ -37,72 +35,28 @@ describe('CourseCardComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should call destroyCourse and show success notification when deleteCourse is called', async () => {
-    const mockCourse = { title: 'Test Course', teacher: { email: 'teacher@example.com' } };
-    component.course = mockCourse;
-    component.userRole = UserRole.Teacher;
+  describe('deleteCourse', () => {
+    it('should call destroyCourse and show success notification when isTeacher is true and delete is successful', async () => {
+      component.isTeacher = true;
+      component.course = { title: 'Test Course', teacher: { email: 'teacher@test.com' } };
+      mockCourseService.destroyCourse.and.returnValue(Promise.resolve({ message: 'Course deleted successfully' }));
 
-    const response = { message: 'Course deleted successfully' };
-    mockCourseService.destroyCourse.and.returnValue(Promise.resolve(response));
+      await component.deleteCourse();
 
-    await component.deleteCourse();
+      expect(mockCourseService.destroyCourse).toHaveBeenCalledWith('Test Course', 'teacher@test.com');
+      expect(mockNotificationsService.success).toHaveBeenCalledWith('Success', 'Course deleted successfully');
+    });
 
-    expect(mockCourseService.destroyCourse).toHaveBeenCalledWith(mockCourse.title, mockCourse.teacher.email);
-    expect(mockNotificationsService.success).toHaveBeenCalledWith('Success', response.message);
+    it('should not call destroyCourse when isTeacher is false', async () => {
+      component.isTeacher = false;
+      component.course = { title: 'Test Course', teacher: { email: 'teacher@test.com' } };
+
+      await component.deleteCourse();
+
+      expect(mockCourseService.destroyCourse).not.toHaveBeenCalled();
+      expect(mockNotificationsService.success).not.toHaveBeenCalled();
+      expect(mockNotificationsService.error).not.toHaveBeenCalled();
+    });
   });
 
-  it('should call destroyCourse and show error notification when deleteCourse fails', async () => {
-    const mockCourse = { title: 'Test Course', teacher: { email: 'teacher@example.com' } };
-    component.course = mockCourse;
-    component.userRole = UserRole.Teacher;
-
-    const error = 'Error deleting course';
-    mockCourseService.destroyCourse.and.returnValue(Promise.reject(error));
-
-    await component.deleteCourse();
-
-    expect(mockCourseService.destroyCourse).toHaveBeenCalledWith(mockCourse.title, mockCourse.teacher.email);
-  });
-
-  it('should call enrollStudent and show success notification when student is enrolled', async () => {
-    const mockCourse = { title: 'Test Course', teacher: { email: 'teacher@example.com' } };
-    component.course = mockCourse;
-    component.userRole = UserRole.Teacher;
-
-    const response = { message: 'Student enrolled successfully' };
-    const studentEmail = 'student@example.com';
-    spyOn(window, 'prompt').and.returnValue(studentEmail);
-    mockCourseService.enrollStudent.and.returnValue(Promise.resolve(response));
-
-    await component.enrollStudent();
-
-    expect(mockCourseService.enrollStudent).toHaveBeenCalledWith(mockCourse.title, studentEmail, mockCourse.teacher.email);
-  });
-
-  it('should call enrollStudent and show error notification when enrolling fails', async () => {
-    const mockCourse = { title: 'Test Course', teacher: { email: 'teacher@example.com' } };
-    component.course = mockCourse;
-    component.userRole = UserRole.Teacher;
-
-    const error = 'Error enrolling student';
-    const studentEmail = 'student@example.com';
-    spyOn(window, 'prompt').and.returnValue(studentEmail);
-    mockCourseService.enrollStudent.and.returnValue(Promise.reject(error));
-
-    await component.enrollStudent();
-
-    expect(mockCourseService.enrollStudent).toHaveBeenCalledWith(mockCourse.title, studentEmail, mockCourse.teacher.email);
-  });
-
-  it('should not call destroyCourse or enrollStudent if userRole is not Teacher', () => {
-    component.userRole = UserRole.Student;
-    const mockCourse = { title: 'Test Course', teacher: { email: 'teacher@example.com' } };
-    component.course = mockCourse;
-
-    component.deleteCourse();
-    component.enrollStudent();
-
-    expect(mockCourseService.destroyCourse).not.toHaveBeenCalled();
-    expect(mockCourseService.enrollStudent).not.toHaveBeenCalled();
-  });
 });

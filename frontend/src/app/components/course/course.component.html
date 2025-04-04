@@ -1,0 +1,92 @@
+<div class="min-h-screen flex flex-col items-center justify-start p-4" *ngIf="course">
+  
+  <div class="bg-[#2c2e3b] shadow-md rounded-lg max-w-2xl w-full p-6">
+    <h1 class="text-2xl font-bold text-white mb-4 text-center">Course Details</h1>
+    <div class="mb-4">
+      <p class="block text-sm font-medium text-gray-100">Course Name</p>
+      <p class="mt-1 text-white">{{ course.title }}</p>
+    </div>
+    <div class="mb-4">
+      <p class="block text-sm font-medium text-gray-100">Description</p>
+      <p class="mt-1 text-white">{{ course.description }}</p>
+    </div>
+    <div class="mb-0">
+      <p class="block text-sm font-medium text-gray-100">Teacher</p>
+      <div class = "flex items-center justify-start mt-2">
+        <img [src]="course.teacher.image" alt="Student Avatar" class="w-10 h-10 rounded-full mr-2" />
+        <p class="text-gray-100 font-medium">{{ course.teacher.firstName }} {{ course.teacher.lastName }}</p>
+     </div>
+    </div>
+  </div>
+
+  <div class="bg-[#2c2e3b] shadow-md rounded-lg max-w-2xl w-full p-6 mt-6" *ngIf="isTeacher">
+    
+    <h2 class="text-xl font-bold text-white mb-4 text-center">
+      Students
+    </h2>
+
+    <div class="flex justify-between items-center mb-4">
+      <p class="block text-sm font-medium text-gray-100 mb-2">
+        Total Students: {{ course.students?.length }}
+      </p>
+  
+      <button 
+        class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded text-sm" 
+        (click)="enrollStudent()"
+       >
+        Enroll Student
+      </button>
+    </div>
+
+    <table class="min-w-full table-auto border-collapse border border-gray-700">
+      <thead>
+        <tr>
+          <th class="border border-gray-700 px-4 py-2 text-white">Student</th>
+          <th class="border border-gray-700 px-4 py-2 text-white">Grades</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let student of course.students">
+          <td class="border border-gray-700 px-4 py-2 text-gray-100">
+           <div class = "flex items-center justify-start">
+              <img [src]="student.image" alt="Student Avatar" class="w-10 h-10 rounded-full mr-2" />
+              <p class="text-gray-100 font-medium">{{ student.firstName }} {{ student.lastName }}</p>
+           </div>
+          </td>
+          <td class="border border-gray-700 px-4 py-2 text-gray-100">            
+
+            <div class="flex flex-wrap gap-2">
+              <span 
+                *ngFor="let grade of student.grades" 
+                class="bg-blue-500 text-white text-xs font-bold py-1 px-2 rounded-full"
+              >
+                {{ grade.date | date:'shortDate' }}: {{ grade.grade }}
+
+                <button 
+                  class="bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-bold py-1 px-2 rounded-full ml-2" 
+                  (click)="editStudentGrade(student, grade)"
+                >
+                  Edit
+                </button>
+                <button 
+                  class="bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-1 px-2 rounded-full ml-2" 
+                  (click)="deleteStudentGrade(student, grade)"
+                >
+                  Delete
+                </button>
+
+              </span>
+
+              <div class = "flex justify-center" (click)="addStudentGrade(student)">
+                <button class="bg-green-500 hover:bg-green-600 text-white py-1 px-2 text-sm font-bold flex items-center rounded-full">
+                  Grade {{ student.firstName }}
+                </button>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
