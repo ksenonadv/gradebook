@@ -75,7 +75,7 @@ export class GradeMultipleStudentsComponent {
       this.courseService.submitGradesForCourse(this.id, gradesArray).then(response => {
         this.notificationsService.success("Success", "The grades were successfully submitted.");
         this.router.navigate([
-          `/courses/${this.course?.id}`
+          '/course', this.course?.id
         ]);
       }).catch(error => {
         this.notificationsService.error("Error", error);

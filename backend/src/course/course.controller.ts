@@ -1,9 +1,10 @@
-import { Controller, Post, Delete, Body, Req, UseGuards } from '@nestjs/common';
+import { Controller, Post, Delete, Body, Req, UseGuards, UsePipes } from '@nestjs/common';
 import { CourseService } from './course.service';
-import { IsEmail, IsNotEmpty, IsNumber, Max, Min } from 'class-validator';
+import { IsArray, IsEmail, IsNotEmpty, IsNumber, Max, Min, ValidateNested } from 'class-validator';
 import { AuthGuard } from '@nestjs/passport';
 import { Roles } from '../guards/role.guard';
 import { UserRole } from '../entities/user.entity';
+import { Type } from 'class-transformer';
 
 class CreateCourseDto {
   @IsNotEmpty()
@@ -63,8 +64,8 @@ class AddStudentGradeDto {
     allowNaN: false,
     maxDecimalPlaces: 0,
   })
-  @Min(1)
-  @Max(10)
+  @Min(1, { message: 'Grade must be at least 1.' })
+  @Max(10, { message: 'Grade cannot exceed 10.' })
   grade: number;
 }
 
@@ -87,6 +88,34 @@ class EditStudentGradeDto {
   @Max(10)
   grade: number;
 }
+
+class GradeDto {
+  @IsEmail()
+  email: string;
+
+  @IsNotEmpty()
+  @IsNumber({
+    allowInfinity: false,
+    allowNaN: false,
+    maxDecimalPlaces: 0,
+  })
+  @Min(1, { message: 'Grade must be at least 1.' })
+  @Max(10, { message: 'Grade cannot exceed 10.' })
+  grade: number;
+}
+
+class SubmitGradesDto {
+  @IsNotEmpty()
+  @IsNumber()
+  courseId: number;
+
+  @IsNotEmpty()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => GradeDto)
+  grades: GradeDto[];
+}
+
 
 @Controller('course')
 export class CourseController {
@@ -182,6 +211,17 @@ export class CourseController {
   async deleteStudentGrade(@Req() req: any, @Body() dto: DeleteStudentGradeDto) {
     return await this.courseService.deleteStudentGrade(
       dto.id,
+      req.user
+    );
+  }
+
+  @Post('submitGrades')
+  @Roles(UserRole.Teacher)
+  @UseGuards(AuthGuard('jwt'))
+  async submitGrades(@Req() req: any, @Body() submitGradesDto: SubmitGradesDto) {
+    return await this.courseService.submitGradesForCourse(
+      submitGradesDto.courseId,
+      submitGradesDto.grades,
       req.user
     );
   }
