@@ -85,28 +85,33 @@ export class GradeMultipleStudentsComponent {
     }
   }
 
-  onFileSelected(event: any) {
+  async onFileSelected(event: any): Promise<void> {
     const file = event.target.files[0];
 
     this.csvErrors = [];
     this.showCsvErrorsModal = false;
 
     if (file) {
-      Papa.parse(file, {
-        complete: (result) => {
-          if (!result.meta.fields || !this.validateCSVHeaders(result.meta.fields)) {
-            this.csvErrors = [`Invalid CSV headers. Expected headers: "email", "grade"`];
-            this.showCsvErrorsModal = true;
-            return;
-          }
-          this.processCSV(result.data);
-        },
-        header: true,
-        error: (err) => {
-          this.csvErrors.push(`General parsing error: ${err.message}`);
+      try {
+        const result = await new Promise<any>((resolve, reject) => {
+          Papa.parse(file, {
+            complete: (result) => resolve(result),
+            header: true,
+            error: (err) => reject(err)
+          });
+        });
+
+        if (!result.meta.fields || !this.validateCSVHeaders(result.meta.fields)) {
+          this.csvErrors = [`Invalid CSV headers. Expected headers: "email", "grade"`];
           this.showCsvErrorsModal = true;
+          return;
         }
-      });
+
+        this.processCSV(result.data);
+      } catch (err: any) {
+        this.csvErrors.push(`General parsing error: ${err.message}`);
+        this.showCsvErrorsModal = true;
+      }
     }
 
     event.target.value = '';

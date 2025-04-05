@@ -143,7 +143,10 @@ export class CourseService {
       );
     }
 
-    if (course.teacher.id !== user.id && !course.students.some(student => student.student.id !== user.id)) {
+    const isTeacher = course.teacher.id === user.id;
+    const student = course.students.find(student => student.student.id == user.id);
+
+    if (course.teacher.id !== user.id && !student) {
       throw new BadRequestException(
         'You are not authorized to view this course'
       );
@@ -172,7 +175,7 @@ export class CourseService {
           grade: grade.grade,
         })),
       })) : undefined,
-      grades: course.teacher.id == user.id ? course.students.find(s => s.student.id == user.id)?.grades : undefined,
+      grades: !isTeacher ? student?.grades : undefined,
     };
   }
 
