@@ -111,4 +111,16 @@ export class CourseService {
     });
   }
 
+  submitGradesForCourse(courseId: number, gradesArray: Array<{ email: string, grade: number}>): Promise<any> {
+  
+    const submitGradesDto = { courseId, grades: gradesArray };
+  
+    return new Promise<any>((resolve, reject) => {
+      this.http.post<any>(`${this.apiUrl}/submitGrades`, submitGradesDto).subscribe({
+        next: (response) => resolve(response),
+        error: (error) => reject(error.error?.message || 'An error occurred while submitting grades'),
+      });
+    });
+  }
+  
 }
