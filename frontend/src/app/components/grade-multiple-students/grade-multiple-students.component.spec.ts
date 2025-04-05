@@ -11,6 +11,8 @@ import { FormsModule } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
 import { CoursePageInfo } from '../../interfaces/course.interface';
 import { UserRole } from '../../interfaces/user.interface';
+import * as Papa from 'papaparse';
+
 
 describe('GradeMultipleStudentsComponent', () => {
   let component: GradeMultipleStudentsComponent;
@@ -111,4 +113,51 @@ describe('GradeMultipleStudentsComponent', () => {
     ]);
   });
   
+  it('should process the selected file and validate headers correctly', () => {
+    const fileMock = new Blob([`email,grade\njohn.doe@example.com,10\njane.doe@example.com,9`], { type: 'text/csv' });
+    const event = { target: { files: [fileMock] } };
+
+    spyOn(Papa, 'parse').and.callThrough();
+
+    component.onFileSelected(event);
+
+    expect(Papa.parse).toHaveBeenCalled();
+    expect(component.csvErrors.length).toBe(0);
+    expect(component.showCsvErrorsModal).toBeFalse();
+  });
+
+  it('should show error for invalid CSV headers', (done) => {
+    const fileMock = new Blob([`name,score\njohn.doe@example.com,10\njane.doe@example.com,9`], { type: 'text/csv' });
+    const event = { target: { files: [fileMock] } };
+  
+    component.onFileSelected(event);
+  
+    setTimeout(() => {
+      expect(component.csvErrors).toContain('Invalid CSV headers. Expected headers: "email", "grade"');
+      expect(component.showCsvErrorsModal).toBeTrue();
+      done();
+    }, 1);
+  });
+
+  it('should process CSV and correctly update grades', (done) => {
+    const fileMock = new Blob([`email,grade\njohn.doe@example.com,10\njane.doe@example.com,9`], { type: 'text/csv' });
+    const event = { target: { files: [fileMock] } };
+  
+    component.students = [
+      { firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com', inputGrade: undefined },
+      { firstName: 'Jane', lastName: 'Doe', email: 'jane.doe@example.com', inputGrade: undefined }
+    ];
+  
+    component.onFileSelected(event);
+  
+    setTimeout(() => {
+      expect(component.students?.[0]?.inputGrade).toBe(10);
+      expect(component.students?.[1]?.inputGrade).toBe(9);
+      expect(component.csvErrors.length).toBe(0);
+      done();
+    }, 1);
+  });
+  
+  
+
 });

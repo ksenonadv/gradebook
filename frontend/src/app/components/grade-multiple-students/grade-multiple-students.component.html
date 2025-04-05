@@ -1,8 +1,29 @@
 <div class="min-h-screen flex flex-col items-center justify-start p-4" *ngIf="course">
   
     <div class="bg-[#2c2e3b] shadow-md rounded-lg max-w-2xl w-full p-6">
-      <h1 class="text-2xl font-bold text-white mb-4 text-center">Students</h1>
       
+      <div class="flex items-center justify-between mb-4 relative w-full">
+        <div>
+          <label
+            for="file-upload"
+            class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded text-sm cursor-pointer transition select-none"
+          >
+            Upload CSV
+          </label>
+          <input
+            id="file-upload"
+            type="file"
+            (change)="onFileSelected($event)"
+            class="hidden"
+          />
+        </div>
+      
+        <h1 class="absolute left-1/2 transform -translate-x-1/2 text-2xl font-bold text-white">
+          Students
+        </h1>
+      </div>
+      
+
       <table class="min-w-full table-auto border-collapse border border-gray-700">
         <thead>
           <tr>
@@ -33,7 +54,7 @@
         </tbody>
       </table>
   
-      <div class="flex justify-center mt-4">
+      <div class="flex justify-end mt-4">
         <button 
           class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded text-sm"
           (click)="submitGrades()"
@@ -41,12 +62,24 @@
           Submit Grades
         </button>
       </div>
-    </div>
-  
-    <div *ngIf="notificationMessage" class="notification-popup bg-red-600 p-4 rounded mt-6">
-      <p class="text-white">{{ notificationMessage }}</p>
-      <button class="bg-white text-red-600 font-bold py-1 px-2 rounded-full mt-2" (click)="notificationMessage = null">Close</button>
+      
     </div>
     
   </div>
-  
+
+  <div *ngIf="showCsvErrorsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div class="bg-[#2c2e3b] p-6 rounded-lg max-w-lg w-full">
+      <h2 class="text-xl font-bold text-red-500 mb-4">CSV Parsing Errors</h2>
+      <ul class="text-gray-300 mb-4 list-disc pl-6 max-h-60 overflow-y-auto">
+        <li *ngFor="let error of csvErrors">{{ error }}</li>
+      </ul>
+      <div class="flex justify-end">
+        <button 
+          class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded text-sm"
+          (click)="showCsvErrorsModal = false"
+        >
+          Ok, ayaye...
+        </button>
+      </div>
+    </div>
+  </div>
