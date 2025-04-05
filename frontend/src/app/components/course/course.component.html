@@ -29,13 +29,21 @@
       <p class="block text-sm font-medium text-gray-100 mb-2">
         Total Students: {{ course.students?.length }}
       </p>
-  
-      <button 
-        class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded text-sm" 
-        (click)="enrollStudent()"
-       >
-        Enroll Student
-      </button>
+      <div class="flex flex-col gap-2">
+        <button 
+          class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded text-sm" 
+          (click)="enrollStudent()"
+          >
+          Enroll Student
+        </button>
+
+        <button 
+          class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded text-sm"
+          [routerLink]="['grade-multiple']">
+          Grade Multiple Students
+        </button>
+
+      </div>
     </div>
 
     <table class="min-w-full table-auto border-collapse border border-gray-700">

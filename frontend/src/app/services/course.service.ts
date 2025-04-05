@@ -111,4 +111,30 @@ export class CourseService {
     });
   }
 
+  submitGradesForCourse(courseId: number, gradesArray: Array<{ email: string, grade: number}>): Promise<any> {
+  
+    const submitGradesDto = { courseId, grades: gradesArray };
+  
+    return new Promise<any>((resolve, reject) => {
+      this.http.post<any>(`${this.apiUrl}/submitGrades`, submitGradesDto).subscribe({
+        next: (response) => resolve(response),
+        error: (error) => {
+          if (error.error?.message) {
+            const messageValues: string[] = Object.values(error.error.message);
+  
+            const gradeError = messageValues.find((message: string) =>
+              message.includes('Grade cannot exceed')
+            );
+  
+            if (gradeError) {
+              reject(`One or more grades are invalid`);
+              return;
+            }
+          }
+          
+          reject(error.error?.message || 'An error occurred while submitting grades');
+        }});
+    });
+  }
+  
 }

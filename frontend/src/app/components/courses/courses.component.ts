@@ -105,7 +105,7 @@ export class CoursesComponent implements OnInit {
           'Success',
           response.message
         );
-        location.reload();
+        this.refreshPage();
       }).catch(error => {
         this.notificationsService.error(
           'Error',

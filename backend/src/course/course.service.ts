@@ -267,4 +267,36 @@ export class CourseService {
     return true;
   }
 
+  async submitGradesForCourse(courseId: number, gradesArray: Array<{ email: string, grade: number }>, teacher: User) {
+    const course = await this.courseRepo.findOne({
+      where: { id: courseId },
+      relations: ['teacher', 'students', 'students.student', 'students.grades'],
+    });
+  
+    if (!course) {
+      throw new NotFoundException(`Course not found`);
+    }
+  
+    if (course.teacher.id !== teacher.id) {
+      throw new BadRequestException('You are not authorized to submit grades for this course');
+    }
+  
+    for (const gradeEntry of gradesArray) {
+      const student = course.students.find(studentCourse => studentCourse.student.email === gradeEntry.email);
+      if (!student) {
+        throw new NotFoundException(`No student found with email: ${gradeEntry.email}`);
+      }
+  
+      const grade = this.studentCourseGradeRepo.create({
+        studentCourse: student,
+        date: new Date(),
+        grade: gradeEntry.grade,
+      });
+  
+      await this.studentCourseGradeRepo.save(grade);
+    }
+  
+    return { message: 'Grades successfully submitted' };
+  }  
+
 }

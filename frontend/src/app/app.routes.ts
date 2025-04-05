@@ -7,6 +7,8 @@ import { authGuard } from './guards/auth.guard';
 import { ProfileComponent } from './components/profile/profile.component';
 import { CoursesComponent } from './components/courses/courses.component';
 import { CourseComponent } from './components/course/course.component';
+import { GradeMultipleStudentsComponent } from './components/grade-multiple-students/grade-multiple-students.component';
+import { teacherGuard } from './guards/teacher.guard';
 
 export const routes: Routes = [
   {
@@ -27,6 +29,11 @@ export const routes: Routes = [
     path: 'course/:id',
     component: CourseComponent,
     canActivate: [authGuard],
+  },
+  {
+    path: 'course/:id/grade-multiple',
+    component: GradeMultipleStudentsComponent,
+    canActivate: [authGuard, teacherGuard],
   },
   {
     path: 'email-confirmation/confirm-email',

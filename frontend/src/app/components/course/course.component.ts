@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CourseService } from '../../services/course.service';
 import { CommonModule } from '@angular/common';
 import { CourseGrade, CoursePageInfo, CourseStudent } from '../../interfaces/course.interface';
@@ -13,7 +13,10 @@ import { InputDialogService } from '../../services/input-dialog.service';
   templateUrl: './course.component.html',
   styleUrl: './course.component.scss',
   standalone: true,
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+  ],
 })
 export class CourseComponent {
 
@@ -43,6 +46,10 @@ export class CourseComponent {
       this.courseService.getCourse(id).then((course) => {
         this.course = course;
         this.user = this.auth.getUserData();
+      }).catch(() => {
+        this.router.navigate([
+          '/courses'
+        ]);
       });
 
     });
@@ -89,7 +96,6 @@ export class CourseComponent {
       max: 10,
       buttonSubmitText: 'Grade Student',
     });
-
     if (!result)
       return;
 

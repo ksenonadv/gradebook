@@ -8,6 +8,8 @@ import { Course } from '../entities/course.entity';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { StudentCourseGrade } from '../entities/grade.entity';
 import { UserRole } from '../entities/user.entity';
+import { User } from '../entities/user.entity';
+import { StudentCourse } from '../entities/student-course.entity';
 
 describe('CourseService', () => {
   let service: CourseService;
@@ -277,5 +279,78 @@ describe('CourseService', () => {
     await expect(serviceWithGradeRepo.deleteStudentGrade(1, { id: 1, firstName: 'John', lastName: 'Doe', image: '', role: UserRole.Teacher, email: 'teacher@test.ro', password: '', courses: [], enrolledCourses: [] }))
       .rejects.toThrowError(new NotFoundException('No grade found with id: 1'));
   });
+
+  it('should successfully submit grades for enrolled students', async () => {
+    const studentEmail = 'student@example.com';
+    const grade = 10;
+  
+    const course = new Course();
+    course.id = 1;
+    course.teacher = new User();
+    course.teacher.id = 1;
+    course.teacher.email = 'teacher@example.com';
+    course.students = [
+      {
+        id: 1,
+        student: { email: studentEmail } as User,
+        studentCourse: {},
+        grades: [],
+        course: course,
+      } as StudentCourse,
+    ];
+  
+    const studentCourse = course.students[0];
+    const teacher = new User();
+    teacher.id = 1;
+    teacher.email = 'teacher@example.com';
+  
+    const studentCourseGradeRepoMock = {
+      create: jest.fn().mockImplementation(({ studentCourse, grade }) => ({
+        studentCourse,
+        grade,
+        date: new Date(),
+      })),
+      save: jest.fn().mockResolvedValue({}),
+    };
+  
+    const courseRepoMock = {
+      findOne: jest.fn().mockResolvedValue(course),
+    };
+  
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        CourseService,
+        { provide: UserService, useValue: mockUserService },
+        { provide: StudentCourseService, useValue: mockStudentCourseService },
+        { provide: getRepositoryToken(Course), useValue: courseRepoMock },
+        { provide: getRepositoryToken(StudentCourseGrade), useValue: studentCourseGradeRepoMock },
+      ],
+    }).compile();
+  
+    const serviceWithGradeRepo = module.get<CourseService>(CourseService);
+  
+    const result = await serviceWithGradeRepo.submitGradesForCourse(1, [{ email: studentEmail, grade: grade }], teacher);
+  
+    expect(result).toEqual({ message: 'Grades successfully submitted' });
+  
+    expect(studentCourseGradeRepoMock.save).toHaveBeenCalledTimes(1);
+    expect(studentCourseGradeRepoMock.save).toHaveBeenCalledWith(expect.objectContaining({
+      studentCourse: expect.any(Object),
+      grade: grade,  
+    }));
+  
+    expect(studentCourseGradeRepoMock.create).toHaveBeenCalledWith(expect.objectContaining({
+      studentCourse: expect.any(Object),
+      grade: grade,
+    }));
+  
+    expect(courseRepoMock.findOne).toHaveBeenCalledWith({
+      where: { id: 1 },
+      relations: ['teacher', 'students', 'students.student', 'students.grades'],
+    });
+  });
+  
+  
+  
 
 });
