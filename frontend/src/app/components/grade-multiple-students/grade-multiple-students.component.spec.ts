@@ -126,20 +126,17 @@ describe('GradeMultipleStudentsComponent', () => {
     expect(component.showCsvErrorsModal).toBeFalse();
   });
 
-  it('should show error for invalid CSV headers', (done) => {
+  it('should show error for invalid CSV headers', async () => {
     const fileMock = new Blob([`name,score\njohn.doe@example.com,10\njane.doe@example.com,9`], { type: 'text/csv' });
     const event = { target: { files: [fileMock] } };
   
-    component.onFileSelected(event);
+    await component.onFileSelected(event);
   
-    setTimeout(() => {
-      expect(component.csvErrors).toContain('Invalid CSV headers. Expected headers: "email", "grade"');
-      expect(component.showCsvErrorsModal).toBeTrue();
-      done();
-    }, 1);
+    expect(component.csvErrors).toContain('Invalid CSV headers. Expected headers: "email", "grade"');
+    expect(component.showCsvErrorsModal).toBeTrue();
   });
 
-  it('should process CSV and correctly update grades', (done) => {
+  it('should process CSV and correctly update grades', async () => {
     const fileMock = new Blob([`email,grade\njohn.doe@example.com,10\njane.doe@example.com,9`], { type: 'text/csv' });
     const event = { target: { files: [fileMock] } };
   
@@ -148,14 +145,11 @@ describe('GradeMultipleStudentsComponent', () => {
       { firstName: 'Jane', lastName: 'Doe', email: 'jane.doe@example.com', inputGrade: undefined }
     ];
   
-    component.onFileSelected(event);
+    await component.onFileSelected(event);
   
-    setTimeout(() => {
-      expect(component.students?.[0]?.inputGrade).toBe(10);
-      expect(component.students?.[1]?.inputGrade).toBe(9);
-      expect(component.csvErrors.length).toBe(0);
-      done();
-    }, 1);
+    expect(component.students?.[0]?.inputGrade).toBe(10);
+    expect(component.students?.[1]?.inputGrade).toBe(9);
+    expect(component.csvErrors.length).toBe(0);
   });
   
   
