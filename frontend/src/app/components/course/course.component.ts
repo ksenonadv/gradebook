@@ -46,6 +46,10 @@ export class CourseComponent {
       this.courseService.getCourse(id).then((course) => {
         this.course = course;
         this.user = this.auth.getUserData();
+      }).catch(() => {
+        this.router.navigate([
+          '/courses'
+        ]);
       });
 
     });
