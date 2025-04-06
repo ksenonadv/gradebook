@@ -10,10 +10,13 @@ import { EmailModule } from './email/email.module';
 import { UserModule } from './user/user.module';
 import { CourseModule } from './course/course.module';
 import { StudentCourseModule } from './student-course/student-course.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { BackupService } from './backup.service';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.PGDB_HOST,
@@ -32,6 +35,6 @@ import { StudentCourseModule } from './student-course/student-course.module';
     StudentCourseModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, BackupService],
 })
 export class AppModule {}
