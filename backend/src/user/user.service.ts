@@ -14,6 +14,13 @@ export class UserService {
         relations: ['courses'],
       });
     }
+
+    async findStudentWithRelations(options: { where: { email: string }; relations: string[] }) {
+      return await this.userRepo.findOne({
+        where: options.where,
+        relations: options.relations, 
+      });
+    }
   
     async findStudentByEmail(email: string) {
       return await this.userRepo.findOne({

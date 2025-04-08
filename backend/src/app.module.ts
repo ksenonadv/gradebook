@@ -12,6 +12,7 @@ import { CourseModule } from './course/course.module';
 import { StudentCourseModule } from './student-course/student-course.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { BackupService } from './backup.service';
+import { GradeHistoryModule } from './grade-history/grade-history.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { BackupService } from './backup.service';
     UserModule,
     CourseModule,
     StudentCourseModule,
+    GradeHistoryModule,
   ],
   controllers: [AppController],
   providers: [AppService, BackupService],
