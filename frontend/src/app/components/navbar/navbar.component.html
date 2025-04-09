@@ -24,6 +24,9 @@
             @if (dropdownOpen) {
               <div class="absolute right-0 mt-2 w-48 bg-black/50 rounded-lg shadow-lg ring-1 ring-gray-800 z-50">
                 <a routerLink="/profile" class="block px-4 py-2 text-sm text-gray-100 hover:bg-white/10 rounded-t-lg">Profile</a>
+                @if (user.role === 0) {
+                  <a routerLink="/courses-grades" class="block px-4 py-2 text-sm text-gray-100 hover:bg-white/10 rounded-t-lg">Grades</a>
+                }
                 <button (click)="logout()" class="w-full text-left px-4 py-2 text-sm text-gray-100 hover:bg-white/10 rounded-b-lg" [routerLink]="['/auth']">Logout</button>
               </div>
             }

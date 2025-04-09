@@ -97,18 +97,7 @@ export class CourseService {
   
   async findCoursesByStudent(studentEmail: string) {
     const courses = await this.studentCourseService.getCoursesForStudent(studentEmail);
-    return courses.map(course => ({
-      id: course.id,
-      title: course.title,
-      description: course.description,
-      teacher: {
-        firstName: course.teacher.firstName,
-        lastName: course.teacher.lastName,
-        email: course.teacher.email,
-        role: course.teacher.role,
-        image: course.teacher.image ?? process.env.DEFAULT_USER_IMAGE,
-      },
-    }));
+    return courses;
   }
 
   async getStudentsForCourse(courseTitle: string) {

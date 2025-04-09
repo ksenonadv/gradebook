@@ -46,6 +46,7 @@ export class StudentCourseService {
       .createQueryBuilder('student_course')
       .leftJoinAndSelect('student_course.course', 'course')
       .leftJoinAndSelect('course.teacher', 'teacher')
+      .leftJoinAndSelect('student_course.grades', 'grade')
       .where('student_course.studentId = :studentId', { studentId: student.id })
       .getMany();
 
@@ -58,7 +59,11 @@ export class StudentCourseService {
         role: enrollment.course.teacher.role,
         image: enrollment.course.teacher.image ?? process.env.DEFAULT_USER_IMAGE,
       },
+      grades: enrollment.grades.map(grade => ({
+        id: grade.id,
+        date: grade.date,
+        grade: grade.grade,
+      })),
     }));
-  }
-  
+  }  
 }
