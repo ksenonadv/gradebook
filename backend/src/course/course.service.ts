@@ -6,6 +6,8 @@ import { UserService } from '../user/user.service';
 import { StudentCourseService } from '../student-course/student-course.service';
 import { User } from '../entities/user.entity';
 import { StudentCourseGrade } from '../entities/grade.entity';
+import { GradeHistoryService } from '../grade-history/grade-history.service';
+import { Action } from '../entities/grade-history.entity';
 
 @Injectable()
 export class CourseService {
@@ -14,6 +16,7 @@ export class CourseService {
     @InjectRepository(StudentCourseGrade) private studentCourseGradeRepo: Repository<StudentCourseGrade>,
     private userService: UserService,
     private studentCourseService: StudentCourseService,
+    private gradeHistoryService: GradeHistoryService,
   ) {}
 
   async createCourse(title: string, description: string, teacherEmail: string) {
@@ -175,7 +178,7 @@ export class CourseService {
           grade: grade.grade,
         })),
       })) : undefined,
-      grades: !isTeacher ? student?.grades : undefined,
+      grades: !isTeacher ? student?.grades.filter((grade) => !grade.isDeleted) : undefined,
     };
   }
 
@@ -214,6 +217,8 @@ export class CourseService {
 
     await this.studentCourseGradeRepo.save(grade_entity);
 
+    await this.gradeHistoryService.addGradeHistory(grade_entity, Action.Create, grade_entity.grade);
+
     return {
       id: grade_entity.id,
       date: grade_entity.date,
@@ -240,6 +245,8 @@ export class CourseService {
       );
     }
 
+    await this.gradeHistoryService.editGradeHistory(gradeEntity, Action.Update, gradeEntity.grade, grade);
+
     gradeEntity.grade = grade;
     await this.studentCourseGradeRepo.save(gradeEntity);
 
@@ -265,7 +272,10 @@ export class CourseService {
       );
     }
 
-    await this.studentCourseGradeRepo.remove(grade);
+    grade.isDeleted = true;
+    await this.studentCourseGradeRepo.save(grade);
+
+    await this.gradeHistoryService.deleteGradeHistory(grade, Action.Delete, grade.grade);
 
     return true;
   }

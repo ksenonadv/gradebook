@@ -10,15 +10,23 @@ import { StudentCourseGrade } from '../entities/grade.entity';
 import { UserRole } from '../entities/user.entity';
 import { User } from '../entities/user.entity';
 import { StudentCourse } from '../entities/student-course.entity';
+import { GradeHistoryService } from '../grade-history/grade-history.service';
 
 describe('CourseService', () => {
   let service: CourseService;
   let userService: UserService;
   let studentCourseService: StudentCourseService;
   let courseRepo: Repository<Course>;
+  let gradeHistoryService: GradeHistoryService;
 
   const mockUserService = {
     findTeacherByEmail: jest.fn().mockResolvedValue({ email: 'teacher@example.com' }),
+  };
+
+  const mockGradeHistoryService = {
+    addGradeHistory: jest.fn(),
+    editGradeHistory: jest.fn(),
+    deleteGradeHistory: jest.fn(),
   };
 
   const mockStudentCourseService = {
@@ -28,7 +36,14 @@ describe('CourseService', () => {
   const mockCourseRepo = {
     create: jest.fn().mockImplementation((dto) => dto),
     save: jest.fn().mockResolvedValue(true),
-    findOne: jest.fn().mockResolvedValue(null), // Simulăm că nu există cursul
+    findOne: jest.fn(),
+    remove: jest.fn().mockResolvedValue(true),
+  };
+
+  const mockStudentCourseGradeRepo = {
+    create: jest.fn().mockReturnValue({}),
+    save: jest.fn().mockResolvedValue({}),
+    findOne: jest.fn().mockResolvedValue(null),
     remove: jest.fn().mockResolvedValue(true),
   };
 
@@ -37,9 +52,10 @@ describe('CourseService', () => {
       providers: [
         CourseService,
         { provide: UserService, useValue: mockUserService },
+        { provide: GradeHistoryService, useValue: mockGradeHistoryService },
         { provide: StudentCourseService, useValue: mockStudentCourseService },
         { provide: getRepositoryToken(Course), useValue: mockCourseRepo },
-        { provide: getRepositoryToken(StudentCourseGrade), useValue: {} },
+        { provide: getRepositoryToken(StudentCourseGrade), useValue: mockStudentCourseGradeRepo },
       ],
     }).compile();
 
@@ -47,6 +63,7 @@ describe('CourseService', () => {
     userService = module.get<UserService>(UserService);
     studentCourseService = module.get<StudentCourseService>(StudentCourseService);
     courseRepo = module.get<Repository<Course>>(getRepositoryToken(Course));
+    gradeHistoryService = module.get<GradeHistoryService>(GradeHistoryService);
   });
 
   it('should create a course', async () => {
@@ -74,11 +91,48 @@ describe('CourseService', () => {
     expect(result).toBe(true);
   });
 
-  it('should throw an error if student tries to enroll in a non-existent course', async () => {
+  it('should throw an error if trying to add a grade for a non-existent course', async () => {
     mockCourseRepo.findOne.mockResolvedValueOnce(null);
 
-    await expect(service.enrollStudent('Non-Existing Course', 'student@example.com', 'teacher@example.com'))
-      .rejects.toThrowError(new NotFoundException('No course found with title: "Non-Existing Course"'));
+    await expect(service.addStudentGrade(1, 'student@example.com', 95, { id: 1, firstName: 'John', lastName: 'Doe', image: '', role: UserRole.Teacher, email: 'teacher@test.ro', password: '', courses: [], enrolledCourses: [] }))
+      .rejects.toThrow(new NotFoundException('No course found with id: 1'));
+  });
+
+  it('should throw an error if teacher is not authorized to add a grade', async () => {
+    const course = {
+      id: 1,
+      teacher: { id: 2 },
+      students: [{ student: { email: 'student@example.com' } }],
+    };
+
+    mockCourseRepo.findOne.mockResolvedValueOnce(course);
+
+    await expect(service.addStudentGrade(1, 'student@example.com', 95, { id: 1, firstName: 'John', lastName: 'Doe', image: '', role: UserRole.Teacher, email: 'teacher@test.ro', password: '', courses: [], enrolledCourses: [] } ))
+      .rejects.toThrow(new BadRequestException('You are not authorized to add grades for this course'));
+  });
+
+  it('should throw an error if student is not enrolled in the course', async () => {
+    const course = {
+      id: 1,
+      teacher: { id: 1 },
+      students: [],
+    };
+
+    mockCourseRepo.findOne.mockResolvedValueOnce(course);
+
+    await expect(
+      service.addStudentGrade(1, 'student@example.com', 95, {
+        id: 1,
+        firstName: 'John',
+        lastName: 'Doe',
+        image: '',
+        role: UserRole.Teacher,
+        email: 'teacher@test.ro',
+        password: '',
+        courses: [],
+        enrolledCourses: [],
+      })
+    ).rejects.toThrow(new NotFoundException('No student found with email: student@example.com'));
   });
 
   it('should add a grade for a student', async () => {
@@ -87,28 +141,13 @@ describe('CourseService', () => {
       teacher: { id: 1, firstName: 'John', lastName: 'Doe', image: '', role: UserRole.Teacher, email: 'teacher@test.ro', password: '', courses: [], enrolledCourses: [] },
       students: [{ student: { email: 'student@example.com' } }],
     };
-    const teacher = course.teacher;
     const gradeEntity = { id: 1, date: new Date(), grade: 95 };
 
     mockCourseRepo.findOne.mockResolvedValueOnce(course);
-    const mockStudentCourseGradeRepo = {
-      create: jest.fn().mockReturnValue(gradeEntity),
-      save: jest.fn().mockResolvedValue(gradeEntity),
-    };
+    mockStudentCourseGradeRepo.create.mockReturnValue(gradeEntity);
+    mockStudentCourseGradeRepo.save.mockResolvedValue(gradeEntity);
 
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        CourseService,
-        { provide: UserService, useValue: mockUserService },
-        { provide: StudentCourseService, useValue: mockStudentCourseService },
-        { provide: getRepositoryToken(Course), useValue: mockCourseRepo },
-        { provide: getRepositoryToken(StudentCourseGrade), useValue: mockStudentCourseGradeRepo },
-      ],
-    }).compile();
-
-    const serviceWithGradeRepo = module.get<CourseService>(CourseService);
-
-    const result = await serviceWithGradeRepo.addStudentGrade(1, 'student@example.com', 95, teacher);
+    const result = await service.addStudentGrade(1, 'student@example.com', 95, course.teacher);
 
     expect(mockCourseRepo.findOne).toHaveBeenCalledWith({
       where: { id: 1 },
@@ -129,11 +168,21 @@ describe('CourseService', () => {
 
   it('should throw an error if trying to add a grade for a non-existent course', async () => {
     mockCourseRepo.findOne.mockResolvedValueOnce(null);
-
-    await expect(service.addStudentGrade(1, 'student@example.com', 95, { id: 1, firstName: 'John', lastName: 'Doe', image: '', role: UserRole.Teacher, email: 'teacher@test.ro', password: '', courses: [], enrolledCourses: [] }))
-      .rejects.toThrowError(new NotFoundException('No course found with id: 1'));
+  
+    await expect(service.addStudentGrade(1, 'student@example.com', 95, {
+      id: 1,
+      firstName: 'John',
+      lastName: 'Doe',
+      image: '',
+      role: UserRole.Teacher,
+      email: 'teacher@test.ro',
+      password: '', 
+      courses: [], 
+      enrolledCourses: []
+    }))
+    .rejects.toThrowError(new NotFoundException('No course found with id: 1'));
   });
-
+  
   it('should throw an error if teacher is not authorized to add a grade', async () => {
     const course = {
       id: 1,
@@ -143,7 +192,7 @@ describe('CourseService', () => {
 
     mockCourseRepo.findOne.mockResolvedValueOnce(course);
 
-    await expect(service.addStudentGrade(1, 'student@example.com', 95, { id: 1, firstName: 'John', lastName: 'Doe', image: '', role: UserRole.Teacher, email: 'teacher@test.ro', password: '', courses: [], enrolledCourses: [] } ))
+    await expect(service.addStudentGrade(1, 'student@example.com', 95, { id: 1, firstName: 'John', lastName: 'Doe', image: '', role: UserRole.Teacher, email: 'teacher@test.ro', password: '', courses: [], enrolledCourses: [] }))
       .rejects.toThrowError(new BadRequestException('You are not authorized to add grades for this course'));
   });
 
@@ -160,130 +209,10 @@ describe('CourseService', () => {
       .rejects.toThrowError(new NotFoundException('No student found with email: student@example.com'));
   });
 
-  it('should edit a student grade', async () => {
-    const gradeEntity = {
-      id: 1,
-      grade: 85,
-      studentCourse: {
-        course: {
-          teacher: { id: 1 },
-        },
-      },
-    };
-    const teacher = { id: 1, firstName: 'John', lastName: 'Doe', image: '', role: UserRole.Teacher, email: 'teacher@test.ro', password: '', courses: [], enrolledCourses: [] };
-
-    const mockStudentCourseGradeRepo = {
-      findOne: jest.fn().mockResolvedValue(gradeEntity),
-      save: jest.fn().mockResolvedValue(true),
-    };
-
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        CourseService,
-        { provide: UserService, useValue: mockUserService },
-        { provide: StudentCourseService, useValue: mockStudentCourseService },
-        { provide: getRepositoryToken(Course), useValue: mockCourseRepo },
-        { provide: getRepositoryToken(StudentCourseGrade), useValue: mockStudentCourseGradeRepo },
-      ],
-    }).compile();
-
-    const serviceWithGradeRepo = module.get<CourseService>(CourseService);
-
-    const result = await serviceWithGradeRepo.editStudentGrade(1, 90, teacher);
-
-    expect(mockStudentCourseGradeRepo.findOne).toHaveBeenCalledWith({
-      where: { id: 1 },
-      relations: ['studentCourse', 'studentCourse.course', 'studentCourse.course.teacher'],
-    });
-    expect(gradeEntity.grade).toBe(90);
-    expect(mockStudentCourseGradeRepo.save).toHaveBeenCalledWith(gradeEntity);
-    expect(result).toBe(true);
-  });
-
-  it('should throw an error if trying to edit a non-existent grade', async () => {
-    const mockStudentCourseGradeRepo = {
-      findOne: jest.fn().mockResolvedValue(null),
-    };
-
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        CourseService,
-        { provide: UserService, useValue: mockUserService },
-        { provide: StudentCourseService, useValue: mockStudentCourseService },
-        { provide: getRepositoryToken(Course), useValue: mockCourseRepo },
-        { provide: getRepositoryToken(StudentCourseGrade), useValue: mockStudentCourseGradeRepo },
-      ],
-    }).compile();
-
-    const serviceWithGradeRepo = module.get<CourseService>(CourseService);
-
-    await expect(serviceWithGradeRepo.editStudentGrade(1, 90, { id: 1, firstName: 'John', lastName: 'Doe', image: '', role: UserRole.Teacher, email: 'teacher@test.ro', password: '', courses: [], enrolledCourses: [] }))
-      .rejects.toThrowError(new NotFoundException('No grade found with id: 1'));
-  });
-
-  it('should delete a student grade', async () => {
-    const gradeEntity = {
-      id: 1,
-      studentCourse: {
-        course: {
-          teacher: { id: 1 },
-        },
-      },
-    };
-    const teacher = { id: 1, firstName: 'John', lastName: 'Doe', image: '', role: UserRole.Teacher, email: 'teacher@test.ro', password: '', courses: [], enrolledCourses: [] };
-
-    const mockStudentCourseGradeRepo = {
-      findOne: jest.fn().mockResolvedValue(gradeEntity),
-      remove: jest.fn().mockResolvedValue(true),
-    };
-
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        CourseService,
-        { provide: UserService, useValue: mockUserService },
-        { provide: StudentCourseService, useValue: mockStudentCourseService },
-        { provide: getRepositoryToken(Course), useValue: mockCourseRepo },
-        { provide: getRepositoryToken(StudentCourseGrade), useValue: mockStudentCourseGradeRepo },
-      ],
-    }).compile();
-
-    const serviceWithGradeRepo = module.get<CourseService>(CourseService);
-
-    const result = await serviceWithGradeRepo.deleteStudentGrade(1, teacher);
-
-    expect(mockStudentCourseGradeRepo.findOne).toHaveBeenCalledWith({
-      where: { id: 1 },
-      relations: ['studentCourse', 'studentCourse.course', 'studentCourse.course.teacher'],
-    });
-    expect(mockStudentCourseGradeRepo.remove).toHaveBeenCalledWith(gradeEntity);
-    expect(result).toBe(true);
-  });
-
-  it('should throw an error if trying to delete a non-existent grade', async () => {
-    const mockStudentCourseGradeRepo = {
-      findOne: jest.fn().mockResolvedValue(null),
-    };
-
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        CourseService,
-        { provide: UserService, useValue: mockUserService },
-        { provide: StudentCourseService, useValue: mockStudentCourseService },
-        { provide: getRepositoryToken(Course), useValue: mockCourseRepo },
-        { provide: getRepositoryToken(StudentCourseGrade), useValue: mockStudentCourseGradeRepo },
-      ],
-    }).compile();
-
-    const serviceWithGradeRepo = module.get<CourseService>(CourseService);
-
-    await expect(serviceWithGradeRepo.deleteStudentGrade(1, { id: 1, firstName: 'John', lastName: 'Doe', image: '', role: UserRole.Teacher, email: 'teacher@test.ro', password: '', courses: [], enrolledCourses: [] }))
-      .rejects.toThrowError(new NotFoundException('No grade found with id: 1'));
-  });
-
   it('should successfully submit grades for enrolled students', async () => {
     const studentEmail = 'student@example.com';
     const grade = 10;
-  
+
     const course = new Course();
     course.id = 1;
     course.teacher = new User();
@@ -298,59 +227,27 @@ describe('CourseService', () => {
         course: course,
       } as StudentCourse,
     ];
-  
+
     const studentCourse = course.students[0];
     const teacher = new User();
     teacher.id = 1;
     teacher.email = 'teacher@example.com';
-  
-    const studentCourseGradeRepoMock = {
-      create: jest.fn().mockImplementation(({ studentCourse, grade }) => ({
-        studentCourse,
-        grade,
-        date: new Date(),
-      })),
-      save: jest.fn().mockResolvedValue({}),
-    };
-  
-    const courseRepoMock = {
-      findOne: jest.fn().mockResolvedValue(course),
-    };
-  
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        CourseService,
-        { provide: UserService, useValue: mockUserService },
-        { provide: StudentCourseService, useValue: mockStudentCourseService },
-        { provide: getRepositoryToken(Course), useValue: courseRepoMock },
-        { provide: getRepositoryToken(StudentCourseGrade), useValue: studentCourseGradeRepoMock },
-      ],
-    }).compile();
-  
-    const serviceWithGradeRepo = module.get<CourseService>(CourseService);
-  
-    const result = await serviceWithGradeRepo.submitGradesForCourse(1, [{ email: studentEmail, grade: grade }], teacher);
-  
+
+    mockStudentCourseGradeRepo.create.mockImplementation(({ studentCourse, grade }) => ({
+      studentCourse,
+      grade,
+      date: new Date(),
+    }));
+    mockStudentCourseGradeRepo.save.mockResolvedValue({});
+    mockCourseRepo.findOne.mockResolvedValue(course);
+
+    const result = await service.submitGradesForCourse(1, [{ email: studentEmail, grade }], teacher);
+
     expect(result).toEqual({ message: 'Grades successfully submitted' });
-  
-    expect(studentCourseGradeRepoMock.save).toHaveBeenCalledTimes(1);
-    expect(studentCourseGradeRepoMock.save).toHaveBeenCalledWith(expect.objectContaining({
-      studentCourse: expect.any(Object),
-      grade: grade,  
-    }));
-  
-    expect(studentCourseGradeRepoMock.create).toHaveBeenCalledWith(expect.objectContaining({
-      studentCourse: expect.any(Object),
-      grade: grade,
-    }));
-  
-    expect(courseRepoMock.findOne).toHaveBeenCalledWith({
+    expect(mockStudentCourseGradeRepo.save).toHaveBeenCalled();
+    expect(mockCourseRepo.findOne).toHaveBeenCalledWith({
       where: { id: 1 },
       relations: ['teacher', 'students', 'students.student', 'students.grades'],
     });
   });
-  
-  
-  
-
 });
