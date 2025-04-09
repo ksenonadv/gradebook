@@ -4,6 +4,7 @@ import { GradeHistory } from '../entities/grade-history.entity';
 import { GradeHistoryService } from './grade-history.service';
 import { StudentCourseGrade } from '../entities/grade.entity';
 import { UserModule } from '../user/user.module';
+import { GradeHistoryController } from './grade-history.controller';
 
 @Module({
   imports: [
@@ -12,5 +13,6 @@ import { UserModule } from '../user/user.module';
   ],
   providers: [GradeHistoryService],
   exports: [GradeHistoryService],
+  controllers: [GradeHistoryController],
 })
 export class GradeHistoryModule {}

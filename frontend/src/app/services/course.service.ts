@@ -56,7 +56,7 @@ export class CourseService {
     const findCoursesByStudentDto = { studentEmail };
     return new Promise<any>((resolve, reject) => {
       this.http.post<any>(`${this.apiUrl}/findByStudent`, findCoursesByStudentDto).subscribe({
-        next: (response) =>{console.log(response); resolve(response)},
+        next: (response) =>{resolve(response)},
         error: (error) => reject(error.error?.message || 'An error occurred while fetching courses for the student'),
       });
     });

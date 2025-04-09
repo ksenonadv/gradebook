@@ -18,7 +18,7 @@ export class CoursesGradesComponent {
 
   private readonly courseService = inject(CourseService);
   private readonly router = inject(Router);
-    private readonly auth = inject(AuthService);
+  private readonly auth = inject(AuthService);
   
   public courses: CoursePageInfo[] | undefined = undefined;
   public user: User | undefined = undefined;
