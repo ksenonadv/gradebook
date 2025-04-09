@@ -188,4 +188,12 @@ export class CourseComponent {
 
   }
 
+  public getStudentAverage(grades: { grade: number }[]): number {
+    if (grades.length === 0) {
+      return 0; 
+    }
+    const total = grades.reduce((acc: number, grade: { grade: number }) => acc + grade.grade, 0);
+    return parseFloat((total / grades.length).toFixed(2)); 
+  }
+
 }

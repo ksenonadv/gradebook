@@ -51,6 +51,7 @@
         <tr>
           <th class="border border-gray-700 px-4 py-2 text-white">Student</th>
           <th class="border border-gray-700 px-4 py-2 text-white">Grades</th>
+          <th class="border border-gray-700 px-4 py-2 text-white">Current average</th>
         </tr>
       </thead>
       <tbody>
@@ -90,6 +91,13 @@
                   Grade {{ student.firstName }}
                 </button>
               </div>
+            </div>
+          </td>
+          <td class="border border-gray-700 px-4 py-2 text-gray-100">
+            <div class="flex justify-center">
+              <span class="text-white text-xs font-bold py-1 px-2 rounded-full">
+                {{ getStudentAverage(student.grades)}}
+              </span>
             </div>
           </td>
         </tr>
