@@ -27,6 +27,7 @@
                 @if (user.role === 0) {
                   <a routerLink="/courses-grades" class="block px-4 py-2 text-sm text-gray-100 hover:bg-white/10 rounded-t-lg">Grades</a>
                 }
+                <a routerLink="/grade-history" class="block px-4 py-2 text-sm text-gray-100 hover:bg-white/10">Grade History</a>
                 <button (click)="logout()" class="w-full text-left px-4 py-2 text-sm text-gray-100 hover:bg-white/10 rounded-b-lg" [routerLink]="['/auth']">Logout</button>
               </div>
             }

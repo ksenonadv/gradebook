@@ -11,6 +11,7 @@ import { GradeMultipleStudentsComponent } from './components/grade-multiple-stud
 import { teacherGuard } from './guards/teacher.guard';
 import { CoursesGradesComponent } from './components/courses-grades/courses-grades.component';
 import { studentGuard } from './guards/student.guard';
+import { GradeHistoryComponent } from './components/grade-history/grade-history.component';
 
 export const routes: Routes = [
   {
@@ -54,6 +55,11 @@ export const routes: Routes = [
     path: 'courses-grades',
     component: CoursesGradesComponent,
     canActivate: [authGuard, studentGuard]
+  },
+  {
+    path: 'grade-history',
+    component: GradeHistoryComponent,
+    canActivate: [authGuard]
   },
   {
     path: '**',

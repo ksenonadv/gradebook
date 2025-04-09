@@ -1,4 +1,4 @@
-import { Body, Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { GradeHistoryService } from './grade-history.service';
 import { Roles } from '../guards/role.guard';
 import { UserRole } from '../entities/user.entity';
@@ -17,26 +17,25 @@ class GetGradeHistoryByTeacherDto {
   emailTeacher: string;
 }
 
-@Controller('grade-history')
+@Controller('history')
 export class GradeHistoryController {
-  constructor(private readonly gradeHistoryService: GradeHistoryService) {
-  }
+  constructor(private readonly gradeHistoryService: GradeHistoryService) {}
 
   @Get('getGradeHistoryByStudent')
   @Roles(UserRole.Student)
   @UseGuards(AuthGuard('jwt'))
-  async getGradeHistoryByStudent(@Body() body: GetGradeHistoryByStudentDto) {
-      return await this.gradeHistoryService.getGradeHistoryByStudent(
-        body.emailStudent,
-      );
+  async getGradeHistoryByStudent(@Query() query: GetGradeHistoryByStudentDto) {
+    return await this.gradeHistoryService.getGradeHistoryByStudent(
+      query.emailStudent,
+    );
   }
 
   @Get('getGradeHistoryByTeacher')
   @Roles(UserRole.Teacher)
   @UseGuards(AuthGuard('jwt'))
-  async getGradeHistoryByTeacher(@Body() body: GetGradeHistoryByTeacherDto) {
-      return await this.gradeHistoryService.getGradeHistoryByTeacher(
-        body.emailTeacher,
-      );
+  async getGradeHistoryByTeacher(@Query() query: GetGradeHistoryByTeacherDto) {
+    return await this.gradeHistoryService.getGradeHistoryByTeacher(
+      query.emailTeacher,
+    );
   }
 }
