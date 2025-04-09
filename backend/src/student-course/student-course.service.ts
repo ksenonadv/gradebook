@@ -59,7 +59,7 @@ export class StudentCourseService {
         role: enrollment.course.teacher.role,
         image: enrollment.course.teacher.image ?? process.env.DEFAULT_USER_IMAGE,
       },
-      grades: enrollment.grades.map(grade => ({
+      grades: enrollment.grades.filter(grade => !grade.isDeleted).map(grade => ({
         id: grade.id,
         date: grade.date,
         grade: grade.grade,

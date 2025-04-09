@@ -22,12 +22,17 @@ export class CoursesGradesComponent {
   
   public courses: CoursePageInfo[] | undefined = undefined;
   public user: User | undefined = undefined;
+  public currentAverage: number | undefined = undefined;
   
   ngOnInit() {
     this.user = this.auth.getUserData();
     this.courseService.findCoursesByStudent(this.user?.email as string).then((courses) => {
       this.courses = courses;
-      console.log(courses);
+      this.currentAverage = parseFloat((courses.reduce((acc: number, course: CoursePageInfo) => {
+        const grades = course.grades?.map((grade: { grade: number }) => grade.grade) || [];
+        const average = grades.reduce((sum: number, grade: number) => sum + grade, 0) / grades.length;
+        return acc + average;
+      }, 0) / courses.length).toFixed(2));
     }).catch(() => {
       this.router.navigate([
         '/courses'

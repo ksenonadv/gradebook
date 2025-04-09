@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { CourseGrade, CoursePageInfo, CourseStudent } from '../../interfaces/course.interface';
 import { AuthService } from '../../services/auth.service';
 import { NotificationsService } from '../../services/notifications.service';
-import { User } from '../../interfaces/user.interface';
+import { User, UserRole } from '../../interfaces/user.interface';
 import { InputDialogService } from '../../services/input-dialog.service';
 
 @Component({
@@ -29,6 +29,7 @@ export class CourseComponent {
 
   public course: CoursePageInfo | undefined = undefined;
   public user: User | undefined = undefined;
+  public currentAverage: number | undefined = undefined;
 
   ngOnInit() {
 
@@ -46,12 +47,20 @@ export class CourseComponent {
       this.courseService.getCourse(id).then((course) => {
         this.course = course;
         this.user = this.auth.getUserData();
+        if(this.user?.role === UserRole.Student){
+          if (this.course?.grades) {
+            const totalAverage = this.course.grades.reduce((acc: number, course: CourseGrade) => {
+              const grade = course.grade;
+              return acc + grade;
+            }, 0) / this.course.grades.length;
+            this.currentAverage = parseFloat(totalAverage.toFixed(2));
+          }
+         }
       }).catch(() => {
         this.router.navigate([
           '/courses'
         ]);
       });
-
     });
   }
 
@@ -177,6 +186,14 @@ export class CourseComponent {
       );
     });
 
+  }
+
+  public getStudentAverage(grades: { grade: number }[]): number {
+    if (grades.length === 0) {
+      return 0; 
+    }
+    const total = grades.reduce((acc: number, grade: { grade: number }) => acc + grade.grade, 0);
+    return parseFloat((total / grades.length).toFixed(2)); 
   }
 
 }
