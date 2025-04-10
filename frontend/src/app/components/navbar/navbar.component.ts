@@ -18,11 +18,6 @@ export class NavbarComponent {
   
   public items: Array<MenuItem> = [
     {
-      label: 'Dashboard',
-      routerLink: '/dashboard',
-      routerLinkActiveOptions: { exact: true },
-    },
-    {
       label: 'Courses',
       routerLink: '/courses',
       routerLinkActiveOptions: { exact: true },
