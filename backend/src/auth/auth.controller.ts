@@ -87,7 +87,6 @@ export class AuthController {
 
   @Throttle({ default: { limit: 3, ttl: 60000 } })
   @Post('forgot-password')
-  @UseGuards(AuthGuard('jwt'))
   forgotPassword(@Body() body: ForgotPasswordDto){
     return this.authService.forgotPassword(
       body.email
@@ -95,7 +94,6 @@ export class AuthController {
   }
 
   @Post('reset-password')
-  @UseGuards(AuthGuard('jwt'))
   resetPassword(@Body() body: ResetPasswordDto){
       return this.authService.resetPassword(
         body.token, 

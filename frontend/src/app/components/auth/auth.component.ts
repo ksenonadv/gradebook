@@ -42,7 +42,7 @@ export class AuthComponent {
   constructor() {
     if (this.authService.isLoggedIn) {
       this.router.navigate([
-        '/dashboard'
+        '/courses'
       ]);
     }
   }
@@ -81,7 +81,7 @@ export class AuthComponent {
         'Login Successful',
         'You have successfully logged in.'
       );
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/courses']);
     }).catch(error => {
       this.notificationsService.error(
         'Authentication Error',

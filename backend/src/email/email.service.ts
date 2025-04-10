@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
@@ -9,6 +9,7 @@ import { User } from '../entities/user.entity';
 
 @Injectable()
 export class EmailService {
+    private readonly logger = new Logger(EmailService.name);
     private nodemailerTransport: Mail;
 
     constructor(
@@ -32,6 +33,7 @@ export class EmailService {
     }
 
     public async sendResetPasswordLink(email: string): Promise<void> {
+        this.logger.log(`Attempting to send reset password link to: ${email}`);
         const payload = { email };
 
         const token = this.jwtService.sign(
@@ -42,12 +44,18 @@ export class EmailService {
             where: { 
               email 
             } 
-          });
+        });
+
+        if (!user) {
+            this.logger.warn(`No user found with email: ${email}`);
+            throw new BadRequestException('No user found with the provided email');
+        }
 
         const url = `${this.configService.get('EMAIL_RESET_PASSWORD_URL')}?token=${token}`;
 
         const text = `Hi, \nTo reset your password, click here: ${url}`;
-
+        
+        this.logger.log(`Reset password link successfully sent to: ${email}`);
         return this.sendMail({
             to: email,
             subject: 'Reset password',
@@ -56,21 +64,25 @@ export class EmailService {
     }
 
     public async decodeConfirmationToken(token: string) {
+        this.logger.log(`Attempting to decode confirmation token`);
         try {
             const payload = await this.jwtService.verify(
                 token
             );
     
             if (typeof payload === 'object' && 'email' in payload) {
+                this.logger.log(`Token decoded successfully. Email: ${payload.email}`);
                 return payload.email;
             }
             throw new BadRequestException();
         } catch (error) {
             if (error?.name === 'TokenExpiredError') {
+                this.logger.warn(`Email confirmation token expired`);
                 throw new BadRequestException(
                     'Email confirmation token expired'
                 );
             }
+            this.logger.error('Bad confirmation token', error.stack);
             throw new BadRequestException('Bad confirmation token');
         }
     }
