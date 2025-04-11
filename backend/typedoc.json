@@ -1,0 +1,15 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["./src"],
+  "entryPointStrategy": "expand",
+  "out": "../docs/backend",
+  "exclude": ["**/*.spec.ts", "**/*.e2e-spec.ts"],
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "excludeExternals": true,
+  "includeVersion": true,
+  "categorizeByGroup": true,
+  "categoryOrder": ["Controllers", "Services", "Models", "Entities", "*"],
+  "name": "Gradebook Backend API Documentation",
+  "readme": "README.md"
+}

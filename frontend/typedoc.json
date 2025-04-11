@@ -1,0 +1,15 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["./src/app"],
+  "entryPointStrategy": "expand",
+  "out": "../docs/frontend",
+  "exclude": ["**/*.spec.ts", "**/*.e2e-spec.ts", "**/*.module.ts"],
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "excludeExternals": true,
+  "includeVersion": true,
+  "categorizeByGroup": true,
+  "categoryOrder": ["Components", "Services", "Interfaces", "Guards", "*"],
+  "name": "Gradebook Frontend Documentation",
+  "readme": "README.md"
+}
