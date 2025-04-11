@@ -4,6 +4,10 @@ import { BehaviorSubject } from 'rxjs';
 import { environment } from '../../environment/environment';
 import { User } from '../interfaces/user.interface';
 
+/**
+ * Service responsible for authentication and user session management in the frontend.
+ * Handles user login, registration, token management, and profile operations.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -23,6 +27,10 @@ export class AuthService {
     HttpClient
   );
 
+  /**
+   * Creates an instance of AuthService.
+   * Sets up token handling and retrieves user data if a token exists in local storage.
+   */
   constructor() {
     
     this.token.subscribe(token => {
@@ -51,6 +59,15 @@ export class AuthService {
     }
   }
 
+  /**
+   * Registers a new user in the system.
+   * 
+   * @param email - Email address of the user
+   * @param firstName - First name of the user
+   * @param lastName - Last name of the user
+   * @param password - Password for the account
+   * @returns An Observable from the HTTP request
+   */
   public register(email: string, firstName: string, lastName: string, password: string) {
     return this.httpClient.post(
       `${this.apiUrl}/register`, 
@@ -63,6 +80,13 @@ export class AuthService {
     );
   }
 
+  /**
+   * Authenticates a user and stores the received token.
+   * 
+   * @param email - Email address of the user
+   * @param password - Password for authentication
+   * @returns A Promise resolving on successful login or rejecting with error
+   */
   public login(email: string, password: string) {
     return new Promise<void>((resolve, reject) => {
       this.httpClient.post<{ token: string }>(
@@ -94,6 +118,10 @@ export class AuthService {
     });
   }
 
+  /**
+   * Logs out the current user by removing the token.
+   * This clears the authentication state and user data.
+   */
   public logout() {
     localStorage.removeItem(
       'token'
@@ -104,18 +132,40 @@ export class AuthService {
     );
   }
 
+  /**
+   * Provides an observable stream of the current user data.
+   * Used for components to react to changes in user authentication state.
+   * 
+   * @returns An Observable of the current user data
+   */
   public get userData$() {
     return this.userData.asObservable();
   }
 
+  /**
+   * Gets the current user data as a snapshot.
+   * 
+   * @returns The current user data or undefined if not logged in
+   */
   public getUserData() {
     return this.userData.getValue();
   }
 
+  /**
+   * Checks if a user is currently logged in.
+   * 
+   * @returns True if the user is logged in, false otherwise
+   */
   public get isLoggedIn() {
     return this.token.value !== undefined;
   }
 
+  /**
+   * Initiates the forgot password process.
+   * 
+   * @param email - Email address of the user requesting password reset
+   * @returns A Promise resolving with a success message or rejecting with error
+   */
   public forgotPassword(email: string){
     return new Promise<string>((resolve, reject) => {
       this.httpClient.post<{ message: string }>(
@@ -136,6 +186,13 @@ export class AuthService {
     });
   }
 
+  /**
+   * Resets a user's password using a token.
+   * 
+   * @param token - Reset token received via email
+   * @param password - New password to set
+   * @returns A Promise resolving with a success message or rejecting with error
+   */
   public resetPassword(token: string, password: string){
     return new Promise<string>((resolve, reject) => {
       this.httpClient.post<{ message: string }>(
@@ -157,6 +214,13 @@ export class AuthService {
     });
   }
 
+  /**
+   * Changes a user's email address and updates the authentication token.
+   * 
+   * @param email - Current email address of the user
+   * @param newEmail - New email address to change to
+   * @returns A Promise resolving with a success message or rejecting with error
+   */
   public changeEmail(email: string, newEmail: string){
     return new Promise<string>((resolve, reject) => {
       this.httpClient.put<{message: string; token: string}>(
@@ -188,6 +252,12 @@ export class AuthService {
     });
   }
 
+  /**
+   * Updates the authentication token.
+   * Used when receiving a new token from the server after certain operations.
+   * 
+   * @param newToken - The new JWT token to set
+   */
   public refreshToken(newToken: string) {
     this.token.next(newToken);
   }
