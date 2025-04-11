@@ -9,11 +9,23 @@ import { StudentCourseGrade } from '../entities/grade.entity';
 import { GradeHistoryService } from '../grade-history/grade-history.service';
 import { Action } from '../entities/grade-history.entity';
 
-
+/**
+ * Service responsible for managing course-related operations in the gradebook system.
+ * Handles course creation, student enrollment, grade management, and course information retrieval.
+ */
 @Injectable()
 export class CourseService {
   private readonly logger = new Logger(CourseService.name);
 
+  /**
+   * Creates an instance of CourseService.
+   * 
+   * @param courseRepo - Repository for Course entities
+   * @param studentCourseGradeRepo - Repository for StudentCourseGrade entities
+   * @param userService - Service for user-related operations
+   * @param studentCourseService - Service for student-course relationship operations
+   * @param gradeHistoryService - Service for tracking grade history changes
+   */
   constructor(
     @InjectRepository(Course) private courseRepo: Repository<Course>,
     @InjectRepository(StudentCourseGrade) private studentCourseGradeRepo: Repository<StudentCourseGrade>,
@@ -22,6 +34,16 @@ export class CourseService {
     private gradeHistoryService: GradeHistoryService,
   ) {}
 
+  /**
+   * Creates a new course with the specified teacher as the owner.
+   * 
+   * @param title - The title of the course
+   * @param description - The description of the course
+   * @param teacherEmail - The email of the teacher creating the course
+   * @returns The newly created course entity
+   * @throws NotFoundException if the teacher is not found
+   * @throws BadRequestException if a course with the same title already exists
+   */
   async createCourse(title: string, description: string, teacherEmail: string) {
     this.logger.log(`Creating course: ${title} by teacher: ${teacherEmail}`);
     const teacher = await this.userService.findTeacherByEmail(teacherEmail);
@@ -41,6 +63,16 @@ export class CourseService {
     return await this.courseRepo.save(course);
   }
 
+  /**
+   * Deletes a course from the system.
+   * Only the teacher who created the course is authorized to delete it.
+   * 
+   * @param title - The title of the course to delete
+   * @param teacherEmail - The email of the teacher attempting to delete the course
+   * @returns A success message upon successful deletion
+   * @throws NotFoundException if the course is not found
+   * @throws BadRequestException if the user is not authorized to delete the course
+   */
   async destroyCourse(title: string, teacherEmail: string) {
     this.logger.log(`Deleting course: ${title} by teacher: ${teacherEmail}`);
     const course = await this.findByTitle(title);
@@ -59,6 +91,12 @@ export class CourseService {
     return { message: 'Course successfully deleted' };
   }
 
+  /**
+   * Finds a course by its title, including related teacher and student information.
+   * 
+   * @param title - The title of the course to find
+   * @returns The course entity if found, otherwise null
+   */
   async findByTitle(title: string) {
     this.logger.debug(`Finding course by title: ${title}`);
     return await this.courseRepo.findOne({ 
@@ -67,6 +105,15 @@ export class CourseService {
     });
   }
 
+  /**
+   * Enrolls a student in a specific course.
+   * 
+   * @param courseTitle - The title of the course
+   * @param studentEmail - The email of the student to enroll
+   * @param teacherEmail - The email of the teacher authorizing the enrollment
+   * @returns The result of the enrollment operation
+   * @throws NotFoundException if the course is not found
+   */
   async enrollStudent(courseTitle: string, studentEmail: string, teacherEmail: string) {
     this.logger.log(`Enrolling student: ${studentEmail} to course: ${courseTitle} by teacher: ${teacherEmail}`);
     const course = await this.findByTitle(courseTitle);
@@ -77,6 +124,13 @@ export class CourseService {
     return await this.studentCourseService.enrollStudent(course, studentEmail, teacherEmail);
   }
 
+  /**
+   * Retrieves all courses taught by a specific teacher.
+   * 
+   * @param teacherEmail - The email of the teacher
+   * @returns An array of course information objects
+   * @throws NotFoundException if the teacher is not found
+   */
   async findCoursesByTeacher(teacherEmail: string) {
     this.logger.debug(`Finding courses for teacher: ${teacherEmail}`);
     const teacher = await this.userService.findTeacherByEmail(teacherEmail);
@@ -112,6 +166,12 @@ export class CourseService {
     }));
   }
   
+  /**
+   * Retrieves all courses in which a specific student is enrolled.
+   * 
+   * @param studentEmail - The email of the student
+   * @returns An array of course information objects
+   */
   async findCoursesByStudent(studentEmail: string) {
     this.logger.log(`Fetching courses for student: ${studentEmail}`);
     const courses = await this.studentCourseService.getCoursesForStudent(studentEmail);
@@ -119,6 +179,13 @@ export class CourseService {
     return courses;
   }
 
+  /**
+   * Retrieves the list of students enrolled in a specific course.
+   * 
+   * @param courseTitle - The title of the course
+   * @returns An array of student information objects
+   * @throws NotFoundException if the course is not found
+   */
   async getStudentsForCourse(courseTitle: string) {
     this.logger.log(`Fetching students for course: ${courseTitle}`);
     const course = await this.courseRepo.findOne({
@@ -144,6 +211,16 @@ export class CourseService {
     });
   }
 
+  /**
+   * Retrieves detailed information about a specific course, with access control based on user role.
+   * Teachers see all student information and grades, while students only see their own grades.
+   * 
+   * @param id - The ID of the course to retrieve
+   * @param user - The user requesting the course information
+   * @returns Course details including teacher info and conditionally student info and grades
+   * @throws NotFoundException if the course is not found
+   * @throws BadRequestException if the user is not authorized to view the course
+   */
   async getCourse(id: number, user: User) {
 
     this.logger.log(`Fetching course details for course ID: ${id} and user ID: ${user.id}`);
@@ -197,6 +274,18 @@ export class CourseService {
     };
   }
 
+  /**
+   * Adds a grade for a specific student in a course.
+   * Only the teacher of the course can add grades.
+   * 
+   * @param courseId - The ID of the course
+   * @param studentEmail - The email of the student receiving the grade
+   * @param grade - The numeric grade value
+   * @param teacher - The teacher adding the grade
+   * @returns The newly created grade object
+   * @throws NotFoundException if the course or student is not found
+   * @throws BadRequestException if the teacher is not authorized to add grades
+   */
   async addStudentGrade(courseId: number, studentEmail: string, grade: number, teacher: User) {
 
     this.logger.log(`Adding grade for student: ${studentEmail} in course ID: ${courseId} by teacher ID: ${teacher.id}`);
@@ -246,6 +335,18 @@ export class CourseService {
     };
   }
 
+  /**
+   * Edits an existing grade for a student.
+   * Only the teacher of the course can edit grades.
+   * The change is recorded in grade history.
+   * 
+   * @param gradeId - The ID of the grade to edit
+   * @param grade - The new grade value
+   * @param teacher - The teacher editing the grade
+   * @returns True if the grade was successfully updated
+   * @throws NotFoundException if the grade is not found
+   * @throws BadRequestException if the teacher is not authorized to edit the grade
+   */
   async editStudentGrade(gradeId: number, grade: number, teacher: User) {
     
     this.logger.log(`Attempting to edit grade with ID: ${gradeId} by teacher with ID: ${teacher.id}`);
@@ -277,6 +378,17 @@ export class CourseService {
     return true;
   }
 
+  /**
+   * Marks a grade as deleted (soft delete).
+   * Only the teacher of the course can delete grades.
+   * The deletion is recorded in grade history.
+   * 
+   * @param gradeId - The ID of the grade to delete
+   * @param teacher - The teacher deleting the grade
+   * @returns True if the grade was successfully marked as deleted
+   * @throws NotFoundException if the grade is not found
+   * @throws BadRequestException if the teacher is not authorized to delete the grade
+   */
   async deleteStudentGrade(gradeId: number, teacher: User) {
 
     this.logger.log(`Attempting to delete grade with ID: ${gradeId} by teacher with ID: ${teacher.id}`);
@@ -308,6 +420,17 @@ export class CourseService {
     return true;
   }
 
+  /**
+   * Submits multiple grades for students in a course at once.
+   * Only the teacher of the course can submit grades.
+   * 
+   * @param courseId - The ID of the course
+   * @param gradesArray - Array of objects containing student emails and their grades
+   * @param teacher - The teacher submitting the grades
+   * @returns A success message upon successful submission
+   * @throws NotFoundException if the course or a student is not found
+   * @throws BadRequestException if the teacher is not authorized to submit grades
+   */
   async submitGradesForCourse(courseId: number, gradesArray: Array<{ email: string, grade: number }>, teacher: User) {
     this.logger.log(`Attempting to submit grades for course ID: ${courseId} by teacher with ID: ${teacher.id}`);
     const course = await this.courseRepo.findOne({
@@ -345,5 +468,4 @@ export class CourseService {
     this.logger.log(`Grades successfully submitted for course ID: ${courseId} by teacher with ID: ${teacher.id}`);
     return { message: 'Grades successfully submitted' };
   }  
-
 }
